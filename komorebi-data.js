@@ -1,7 +1,7 @@
 // KOMOREBI OS - DATA & CONFIGURATION
 // Edit this file to change content, scoring, and protocols.
 
-const DEFAULT_CONFIG =
+const DEFAULT_CONFIG = {
     // 1. SYSTEM CONSTANTS
     levels: {
         elite: 6500,
@@ -11,157 +11,195 @@ const DEFAULT_CONFIG =
     maxXP: 9000,
 
     // 2. KNOWLEDGE BASE (The Library)
-    // Add or remove items here to update your "Reader" and "Daily Prompts"
     library: {
         mentalModels: [
-            { name: "First Principles", desc: "Reduce problems to fundamental truths, build upward." },
+            { name: "First Principles Thinking", desc: "Reduce problems to fundamental truths, build upward." },
+            { name: "Second-Order Thinking", desc: "Consider consequences beyond the immediate." },
             { name: "Inversion", desc: "Think backward: how could this fail? Then avoid it." },
+            { name: "Probabilistic Thinking", desc: "Evaluate decisions using likelihoods, not certainties." },
+            { name: "Bayesian Updating", desc: "Adjust beliefs in light of new evidence." },
+            { name: "Expected Value", desc: "Quantify decisions: outcomes × probabilities." },
             { name: "Circle of Competence", desc: "Operate within your area of true knowledge." },
-            { name: "Hanlon's Razor", desc: "Never attribute to malice what is explained by stupidity." },
+            { name: "Falsifiability (Popper)", desc: "If it cannot be proven wrong, it’s not knowledge." },
+            { name: "Map ≠ Territory", desc: "Symbols are not reality." },
+            { name: "Occam’s Razor", desc: "Prefer the simplest explanation that fits the data." },
+            { name: "Hanlon’s Razor", desc: "Never attribute to malice what can be explained by stupidity." },
+            { name: "Necessity & Sufficiency", desc: "Distinguish causes from catalysts." },
+            { name: "Thought Experiments", desc: "Simulate reality to explore principles." },
+            { name: "Decision Trees", desc: "Branching paths for multi-stage decisions." },
+            { name: "Sensitivity Analysis", desc: "Test assumptions to see what breaks the model." },
+            { name: "Kelly Criterion", desc: "Optimal bet sizing under uncertainty." },
+            { name: "Barbell Strategy", desc: "Pair extreme safety with high-upside risk." },
+            { name: "Anti-fragility (Taleb)", desc: "Seek systems that benefit from disorder." },
+            { name: "Via Negativa", desc: "What not to do is often more important than what to do." },
+            { name: "Mimetic Desire (Girard)", desc: "We imitate others' desires; conflict follows." },
+            { name: "Status Games", desc: "Most ambition is about pecking order. Avoid them." },
+            { name: "Envy & Jealousy", desc: "Underrated forces behind irrational decisions." },
+            { name: "Social Proof", desc: "We copy others, especially under uncertainty." },
+            { name: "Commitment & Consistency Bias", desc: "We stay loyal to past choices, even when wrong." },
+            { name: "Confirmation Bias", desc: "We seek agreement, not truth." },
+            { name: "Hindsight Bias", desc: "Everything is obvious after it happens." },
+            { name: "Survivorship Bias", desc: "We forget the invisible failures." },
+            { name: "Narrative Instinct", desc: "Truth gets rewritten as fable." },
+            { name: "Do-Something Syndrome", desc: "Action bias overrides logic." },
+            { name: "Pavlovian Association", desc: "Emotionally charged cues override reason." },
+            { name: "First-Conclusion Bias", desc: "First idea sticks; mind shuts after." },
+            { name: "Availability Heuristic", desc: "Recent, vivid = true (but not really)." },
+            { name: "Representativeness Heuristic", desc: "Stereotyping based on past patterns." },
+            { name: "Base Rate Neglect", desc: "Ignore statistical norms in favor of specifics." },
+            { name: "Stress Response Bias", desc: "Fight or flight inhibits reasoning." },
+            { name: "Denial & Coping Bias", desc: "The mind evades pain." },
+            { name: "Relative Misery Bias", desc: "We benchmark happiness against others." },
+            { name: "Fairness Sensitivity", desc: "Morality instinct overrides logic." },
+            { name: "Fundamental Attribution Error", desc: "We blame people over context." },
+            { name: "OODA Loop (Boyd)", desc: "Observe, Orient, Decide, Act." },
+            { name: "Asymmetric Warfare", desc: "Win by not fighting on equal terms." },
+            { name: "Two-Front War", desc: "Divided resources = risk." },
+            { name: "Mutually Assured Destruction", desc: "Deterrence through symmetry." },
+            { name: "Concentration of Force", desc: "Overwhelm by focus." },
+            { name: "Deception (Sun Tzu)", desc: "All war is based on misdirection." },
+            { name: "Moral Authority", desc: "Legitimacy is power." },
+            { name: "Timing and Tempo", desc: "Speed is a weapon." },
+            { name: "Seeing the Front", desc: "Eyes on the field, not the map." },
+            { name: "The Lindy Effect", desc: "What survives ages, survives longer." },
+            { name: "Chunking", desc: "Grouping aids memory and reasoning." },
+            { name: "Meta-Learning", desc: "Learn how to learn." },
+            { name: "Socratic Method", desc: "Question everything." },
+            { name: "Curiosity Instinct", desc: "Innate drive to explore, understand, and innovate." },
+            { name: "Language Instinct", desc: "Deep grammar wired into us." },
             { name: "Pareto Principle", desc: "80% of effects come from 20% of causes." },
-            // ... Paste the rest of your 300+ models here
+            { name: "Hyperbolic Discounting", desc: "Preferring small rewards now over big ones later." },
+            { name: "Reciprocity", desc: "We feel obligated to return favors." },
+            { name: "Scarcity", desc: "We value things more when they are rare." },
+            { name: "Authority", desc: "We obey perceived experts." },
+            { name: "Liking", desc: "We say yes to those we like." },
+            { name: "Framing Effect", desc: "The way you tell it changes what people hear." },
+            { name: "Anchoring Effect", desc: "First number heard shapes expectation." },
+            { name: "Contrast Principle", desc: "Context changes perceived value." },
+            { name: "Truth-by-Repetition", desc: "Familiarity breeds believability." },
+            { name: "Moral Credentialing", desc: "Past good acts license current selfish ones." },
+            { name: "Opportunity Cost", desc: "Every choice is a trade." },
+            { name: "Margin of Safety", desc: "Room for error is your friend." },
+            { name: "Mr. Market", desc: "The market is emotional, not rational." },
+            { name: "Compounding", desc: "The most powerful force in the universe." },
+            { name: "ROIC", desc: "Return on Invested Capital is core of performance." },
+            { name: "Capital Allocation", desc: "Intelligent reinvestment trumps earnings." },
+            { name: "Cash Flow over Earnings", desc: "Real cash > accounting illusions." },
+            { name: "Founder-Led Advantage", desc: "Skin in the game creates alignment." },
+            { name: "Spawner Model", desc: "Businesses that create new businesses (e.g. Amazon)." },
+            { name: "Network Effects", desc: "Value increases with more users." },
+            { name: "Economies of Scale", desc: "Cost per unit drops as volume increases." },
+            { name: "Switching Costs", desc: "Lock-in creates value." },
+            { name: "Branding", desc: "Intangible asset that allows pricing power." },
+            { name: "Cornered Resource", desc: "Exclusive access to a valuable asset." },
+            { name: "Counter-Positioning", desc: "New business model that incumbents cannot copy." },
+            { name: "Feedback Loops", desc: "Positive amplifies, negative stabilizes." },
+            { name: "Equilibrium", desc: "Where systems settle (or not)." },
+            { name: "Emergence", desc: "Complex behavior from simple rules." },
+            { name: "Bottlenecks", desc: "Throughput limits performance." },
+            { name: "Leverage Points", desc: "Small inputs, big outputs." },
+            { name: "Redundancy", desc: "Slack = resilience." },
+            { name: "Scaling Laws", desc: "Size changes behavior." },
+            { name: "Autocatalysis", desc: "Growth feeds on itself." },
+            { name: "Power Laws", desc: "Extreme outliers dominate the average." },
+            { name: "Phase Transitions", desc: "Tiny shifts trigger massive change." },
+            { name: "Inertia", desc: "Things in motion stay in motion." },
+            { name: "Entropy", desc: "Systems tend toward disorder." },
+            { name: "Critical Mass", desc: "Threshold effects ignite change." },
+            { name: "Thermodynamics", desc: "Conservation, entropy, energy transfer." },
+            { name: "Evolution", desc: "Survival via variation and selection." },
+            { name: "Fitness Landscapes", desc: "Some solutions are stuck in local optima." },
+            { name: "Ecosystem Thinking", desc: "Every part affects the whole." },
+            { name: "Activation Energy", desc: "Change requires a spark." },
+            { name: "Signal vs. Noise", desc: "Extract meaning from chaos." }
         ],
         productivity: [
-            { name: "5 Second Rule", desc: "Count 5-4-3-2-1-GO to bypass hesitation." },
-            { name: "Deep Work", desc: "Dedicate blocks of time to distraction-free cognitive work." },
-            { name: "Eat That Frog", desc: "Do the biggest, ugliest task first thing." },
-            // ... Add your productivity hacks here
-        ],
-        investors: [
-            { name: "Warren Buffett", resource: "Berkshire Shareholder Letters", years: "55 Years" },
-            { name: "Stanley Druckenmiller", resource: "The Genius of Stan Druckenmiller", years: "30 Years" },
-            { name: "Charlie Munger", resource: "Poor Charlie's Almanack", years: "15+ Years" },
-            // ... Add your investor list here
-        ],
-        quotes: [
-            "“Discipline equals freedom.” — Jocko Willink",
-            "“The impediment to action advances action.” — Marcus Aurelius",
-            "“The score takes care of itself.” — Bill Walsh",
-            // ... Add your quotes here
-        ]
-    },
-
-    // 3. PROTOCOL DEFINITIONS (The Checkboxes)
-    // Define your cards, checkboxes, and scoring logic here.
-    // The UI will automatically build itself based on this list.
-    protocols: [
-        {
-            id: "health",
-            title: "Health (Body Fat < 16%)",
-            columns: 3, // How many cards in this row?
-            cards: [
-                {
-                    id: "supplements",
-                    title: "Jaguar Fuel",
-                    maxXP: 500,
-                    items: [
-                        { id: "supplementStack", label: "Smoothie & Supps Stack", xp: 500 }
-                        // You can add a 'details' array here if you want the dropdown back
-                    ]
-                },
-                {
-                    id: "fitness",
-                    title: "Jaguar Physique",
-                    maxXP: 1000,
-                    // Logic: "count" means XP is based on how many are checked
-                    // "multiplier" means 333 XP per check.
-                    scoringType: "count_multiplier", 
-                    perItemXP: 334, // 3 items * 334 ≈ 1000
-                    items: [
-                        { id: "workout", label: "Workout (Huberman/Johnson)" },
-                        { id: "corrective", label: "Corrective/Postural (10m)" },
-                        { id: "zone2", label: "Zone 2 / Ruck" }
-                    ]
-                },
-                {
-                    id: "aesthetics",
-                    title: "Aesthetics",
-                    maxXP: 500,
-                    scoringType: "count_multiplier",
-                    perItemXP: 166,
-                    items: [
-                        { id: "grooming", label: "Grooming/Skin" },
-                        { id: "posture", label: "Posture Wall Sits" },
-                        { id: "guaSha", label: "Gua Sha / Ice Roll" }
-                    ]
-                }
-            ]
-        },
-        {
-            id: "mind",
-            title: "Mind & Meaning",
-            columns: 3,
-            cards: [
-                {
-                    id: "wisdom",
-                    title: "Mental Resilience",
-                    maxXP: 1000,
-                    scoringType: "count_multiplier",
-                    perItemXP: 250,
-                    items: [
-                        { id: "meditate", label: "FitMind / Meditation" },
-                        { id: "slowThink", label: "Slow Thinking (10m)" },
-                        { id: "gratitude", label: "Evening Gratitude" },
-                        { id: "stoicReflect", label: "Stoic Reflection" }
-                    ]
-                },
-                {
-                    id: "values",
-                    title: "Core Values",
-                    maxXP: 1000,
-                    scoringType: "count_multiplier",
-                    perItemXP: 200,
-                    items: [
-                        { id: "valStrength", label: "Strength" },
-                        { id: "valBeauty", label: "Beauty" },
-                        { id: "valService", label: "Service" },
-                        { id: "valFamily", label: "Family" },
-                        { id: "valWisdom", label: "Wisdom" }
-                    ]
-                },
-                {
-                    id: "arete",
-                    title: "Anti-Mimetic",
-                    maxXP: 500,
-                    scoringType: "count_multiplier",
-                    perItemXP: 250,
-                    items: [
-                        { id: "antiMimetic", label: "Avoided 'The Crowd'" },
-                        { id: "legacy", label: "Legacy Action" }
-                    ]
-                }
-            ]
-        },
-        {
-            id: "learning",
-            title: "Learning & Productivity",
-            columns: 2,
-            cards: [
-                {
-                    id: "mastery",
-                    title: "Ultralearning",
-                    maxXP: 2000,
-                    scoringType: "count_multiplier",
-                    perItemXP: 666,
-                    items: [
-                        { id: "metalearning", label: "Metalearning Map" },
-                        { id: "drill", label: "Drill Weaknesses" },
-                        { id: "overlearn", label: "Overlearn/Teach" }
-                    ]
-                },
-                {
-                    id: "responsibility",
-                    title: "Second Brain",
-                    maxXP: 2000,
-                    scoringType: "count_multiplier",
-                    perItemXP: 666,
-                    items: [
-                        { id: "sbCapture", label: "Capture (Notes)" },
-                        { id: "sbOrganize", label: "Organize (PARA)" },
-                        { id: "sbDistill", label: "Distill (Summary)" }
-                    ]
-                }
-            ]
-        }
-    ]
-};
+            { name: "Growth Mindset (Dweck)", desc: "Believing challenges are a chance to grow, not a threat. The power of 'Yet'." },
+            { name: "Re-labeling (Little Bets)", desc: "Fixed mindset sees failure as identity. Growth mindset sees failure as data." },
+            { name: "Self-Efficacy Quest (SuperBetter)", desc: "Complete simple daily quests to build confidence for bigger challenges." },
+            { name: "Kaizen (Maurer)", desc: "Small, continuous steps to bypass the brain's fear response (Amygdala)." },
+            { name: "Compound Effect (Hardy)", desc: "Small, smart choices + consistency + time = radical difference." },
+            { name: "Subjective Success (Barker)", desc: "Measure Achievement, Legacy, Significance, and Happiness, not just money." },
+            { name: "Optimize for Interesting (Dorie Clark)", desc: "Choose the path that keeps you curious to play the Long Game." },
+            { name: "Ego is the Enemy (Holiday)", desc: "Aspiring? Do. Succeeding? Stay humble. Failing? Resilience." },
+            { name: "Amor Fati (Holiday)", desc: "Love your fate. Turn obstacles into fuel." },
+            { name: "Circle of Control (Stoicism)", desc: "Focus only on what you control. Ignore the rest." },
+            { name: "10-10-10 (Suzy Welch)", desc: "How will I feel in 10 mins, 10 months, 10 years?" },
+            { name: "The 4 Agreements (Ruiz)", desc: "Be impeccable with your word. Don't take it personally. Don't assume. Do your best." },
+            { name: "The ONE Thing (Keller)", desc: "What is the one thing such that by doing it, everything else is easier or unnecessary?" },
+            { name: "Essentialism (McKeown)", desc: "Less but better. The disciplined pursuit of less." },
+            { name: "The 80/20 Principle (Koch)", desc: "20% of inputs produce 80% of outputs. Focus on the 20%." },
+            { name: "Strategic Underachievement (Burkeman)", desc: "Decide in advance what to fail at to save energy for what matters." },
+            { name: "Hell Yeah or No (Sivers)", desc: "If it's not a 'Hell Yeah', it's a no." },
+            { name: "The Positive No (Ury)", desc: "Yes to values, No to request, Yes to relationship." },
+            { name: "Your One Word (Carmichael)", desc: "Find the single value that defines you and use it as a compass." },
+            { name: "Pain-Pleasure Association (Robbins)", desc: "Link massive pain to inaction and massive pleasure to action." },
+            { name: "Tragic Optimism (Frankl)", desc: "Finding meaning in suffering. The last of the human freedoms." },
+            { name: "Psycho-Cybernetics (Maltz)", desc: "Your self-image sets the boundaries of your individual accomplishment." },
+            { name: "The Dip (Godin)", desc: "Quit the wrong things fast so you can push through the right Dip." },
+            { name: "Grit (Duckworth)", desc: "Passion + Perseverance for long-term goals." },
+            { name: "The 40% Rule (Goggins)", desc: "When your mind says you're done, you're only 40% done." },
+            { name: "Cookie Jar (Goggins)", desc: "Remember past victories to fuel present struggles." },
+            { name: "Winning (Grover)", desc: "Winning demands obsession and doesn't care about your feelings." },
+            { name: "Power Laws (Greene)", desc: "Say less. Be audacious. Be formless." },
+            { name: "David vs Goliath (Gladwell)", desc: "Neutralize the giant's advantage by changing the rules." },
+            { name: "Antifragile (Taleb)", desc: "Gain from disorder. Cap downside, infinite upside." },
+            { name: "Subtle Art (Manson)", desc: "Choose what you are willing to suffer for." },
+            { name: "Think Like a Monk (Shetty)", desc: "Let go of external expectations. Find your dharma." },
+            { name: "Worry Compartmentalization (Carnegie)", desc: "Live in day-tight compartments." },
+            { name: "5-4-3-2-1 Grounding (Trenton)", desc: "Engage senses to stop overthinking." },
+            { name: "Stress Enhancing Mindset (McGonigal)", desc: "View stress as energy preparation, not a threat." },
+            { name: "WRAP Decision Making (Heath)", desc: "Widen options, Reality test, Attain distance, Prepare to be wrong." },
+            { name: "Thinking in Bets (Duke)", desc: "Decisions are bets on the future, not certainties." },
+            { name: "System 1 vs System 2 (Kahneman)", desc: "Slow down to engage rational thinking over intuition." },
+            { name: "Via Negativa (Dobelli)", desc: "Avoid stupidity rather than seeking brilliance." },
+            { name: "37% Rule (Algorithms)", desc: "Explore for the first 37%, then exploit the next best option." },
+            { name: "First Principles (Elon Musk)", desc: "Boil things down to fundamental truths and reason up." },
+            { name: "Second-Order Thinking", desc: "And then what? Look beyond the immediate effect." },
+            { name: "Smarter Faster Better (Duhigg)", desc: "Generate motivation by making choices that prove autonomy." },
+            { name: "Radical Open-mindedness (Dalio)", desc: "Pain + Reflection = Progress." },
+            { name: "Think Again (Grant)", desc: "Think like a scientist, not a preacher, prosecutor, or politician." },
+            { name: "Regret Minimization (Pink)", desc: "Foundation, Boldness, Moral, and Connection regrets." },
+            { name: "Design Your Life (Burnett/Evans)", desc: "Prototype your life. Don't just plan it." },
+            { name: "Code of Extraordinary Mind (Lakhiani)", desc: "Question the 'Brules' (Bullshit Rules) of society." },
+            { name: "Born for This (Guillebeau)", desc: "Intersection of Joy, Money, and Flow." },
+            { name: "Craftsman Mindset (Newport)", desc: "Be so good they can't ignore you. Passion follows skill." },
+            { name: "Mastery (Greene)", desc: "Primal Curiosity + Intense Focus + Mentorship." },
+            { name: "Reverse Engineering (Friedman)", desc: "Decode greatness by analyzing the best work." },
+            { name: "Talent Hotbeds (Coyle)", desc: "Deep practice + Ignition + Master Coaching." },
+            { name: "Range (Epstein)", desc: "Generalists thrive in a specialized world. Sample widely." },
+            { name: "Originality (Grant)", desc: "Question the default. Produce volume to find quality." },
+            { name: "Giver vs Taker (Grant)", desc: "Givers win in the long run if they avoid burnout." },
+            { name: "Win Friends (Carnegie)", desc: "Be genuinely interested in other people." },
+            { name: "One Minute Manager", desc: "1 Min Goals, 1 Min Praisings, 1 Min Redirects." },
+            { name: "Coaching Habit (Stanier)", desc: "Ask 'What's on your mind?' and 'And what else?'" },
+            { name: "Culture Code (Coyle)", desc: "Build safety, share vulnerability, establish purpose." },
+            { name: "Good to Great (Collins)", desc: "Hedgehog Concept: Passion, Best at, Economic Engine." },
+            { name: "Profit First (Michalowicz)", desc: "Sales - Profit = Expenses. Take profit first." },
+            { name: "Start with Why (Sinek)", desc: "People don't buy what you do, they buy why you do it." },
+            { name: "StoryBrand (Miller)", desc: "The customer is the hero, not your brand." },
+            { name: "E-Myth (Gerber)", desc: "Work ON your business, not IN it. Build systems." },
+            { name: "Company of One (Jarvis)", desc: "Better, not bigger. Question growth." },
+            { name: "1000 True Fans (Kelly)", desc: "You don't need millions. You need 1000 true fans." },
+            { name: "Blue Ocean Strategy", desc: "Don't compete. Create a new market." },
+            { name: "Unfair Advantage (Ali/Kubba)", desc: "MILES: Money, Intelligence, Location, Education, Status." },
+            { name: "Day One (Bezos)", desc: "Stave off death by maintaining a start-up mentality." },
+            { name: "Inside the Box (Boyd)", desc: "Innovation happens by subtraction, division, multiplication." },
+            { name: "Jobs to be Done (Christensen)", desc: "Customers hire products to solve a specific problem." },
+            { name: "Lean Startup (Ries)", desc: "Build-Measure-Learn. MVP." },
+            { name: "Sprint (Google Ventures)", desc: "Solve big problems in 5 days." },
+            { name: "Perennial Seller (Holiday)", desc: "Make something timeless. Play the long game." },
+            { name: "To Sell Is Human (Pink)", desc: "Attunement, Buoyancy, Clarity." },
+            { name: "Influence (Cialdini)", desc: "Reciprocity, Commitment, Social Proof, Authority, Liking, Scarcity." },
+            { name: "Magic Words (Jones)", desc: "'Just imagine', 'How open-minded are you?'" },
+            { name: "5 Second Rule (Robbins)", desc: "Count 5-4-3-2-1-GO to bypass hesitation." },
+            { name: "Eat That Frog (Tracy)", desc: "Do the biggest, ugliest task first thing." },
+            { name: "2-Minute Rule (Clear)", desc: "If it takes < 2 mins, do it now." },
+            { name: "Time Boxing (Eyal)", desc: "Schedule every minute of your day." },
+            { name: "WOOP (Oettingen)", desc: "Wish, Outcome, Obstacle, Plan." },
+            { name: "Ivy Lee Method", desc: "Define your 3 & 1 priorities the night before." },
+            { name: "Reversal of Desire (The Tools)", desc: "Scream 'Bring it on!' when facing pain." },
+            { name: "Intermittent Sobriety (Lembke)", desc: "Abstain from high-dopamine inputs to reset." },
+            { name: "Batching Buckets (Allen)", desc: "Group similar tasks to reduce context switching." },
+            { name: "Pomodoro Technique", desc: "25 min focus, 5 min diffuse mode." },
+            { name: "Checklist Manifesto (Gawande)", desc: "Use che
