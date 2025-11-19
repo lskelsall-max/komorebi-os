@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arete XP Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #050816;
+      color: #f5f5f5;
+    }
+    h1, h2 {
+      margin-top: 0.5rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    input[type="date"] {
+      background: #0b1020;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 0.35rem 0.5rem;
+      color: #f5f5f5;
+    }
+    .card {
+      background: #0b1020;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid #1f2937;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .xp {
+      font-weight: 600;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+    .items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.3rem 1rem;
+      font-size: 0.9rem;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.1);
+    }
+    .summary {
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      background: #111827;
+      border: 1px solid #374151;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-left: 0.3rem;
+    }
+    .elite { background: #16a34a33; color: #4ade80; border: 1px solid #16a34a; }
+    .strong { background: #0284c733; color: #7dd3fc; border: 1px solid #0284c7; }
+    .survival { background: #a1620733; color: #fbbf24; border: 1px solid #a16207; }
+    .red { background: #b91c1c33; color: #fecaca; border: 1px solid #b91c1c; }
+    button {
+      background: #4f46e5;
+      color: #f9fafb;
+      border: none;
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #111827;
+      border: 1px solid #4b5563;
+      color: #e5e7eb;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .streaks {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.3rem 1rem;
+    }
+    .streak-label {
+      opacity: 0.9;
+    }
+    .week-view {
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      background: #020617;
+      border: 1px solid #1e293b;
+    }
+    .week-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .week-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .week-table th,
+    .week-table td {
+      padding: 0.25rem 0.3rem;
+      text-align: left;
+    }
+    .week-table th {
+      border-bottom: 1px solid #374151;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+    .week-table tr:nth-child(even) {
+      background: #020617;
+    }
+    .week-table tr:nth-child(odd) {
+      background: #030712;
+    }
+    .week-xp {
+      white-space: nowrap;
+    }
+    .week-rating {
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="day-header">
+      <h1>Arete XP Tracker</h1>
+      <div>
+        <label for="date-input">Day:</label>
+        <input type="date" id="date-input" />
+      </div>
+    </div>
+
+    <!-- Supplements -->
+    <div class="card" data-category="supplements">
+      <div class="card-header">
+        <h2>Supplements</h2>
+        <div class="xp">0 / 500 XP</div>
+      </div>
+      <div class="items">
+        <label>
+          <input type="checkbox" data-key="supplementStack" />
+          Supplement stack complete
+        </label>
+      </div>
+    </div>
+
+    <!-- Supersmoothie -->
+    <div class="card" data-category="smoothie">
+      <div class="card-header">
+        <h2>Supersmoothie</h2>
+        <div class="xp">0 / 500 XP</div>
+      </div>
+      <div class="items">
+        <label>
+          <input type="checkbox" data-key="smoothie" />
+          Supersmoothie (40g protein, creatine, collagen, greens, etc.)
+        </label>
+      </div>
+    </div>
+
+    <!-- Fitness & Recovery -->
+    <div class="card" data-category="fitness">
+      <div class="card-header">
+        <h2>Fitness &amp; Recovery</h2>
+        <div class="xp">0 / 1000 XP</div>
+      </div>
+      <div class="items">
+        <label><input type="checkbox" data-key="sunshine" />Sunshine</label>
+        <label><input type="checkbox" data-key="rollerYoga" />Roller / Yoga</label>
+        <label><input type="checkbox" data-key="protein120" />Protein ≥ 120g</label>
+        <label><input type="checkbox" data-key="exercise" />Exercise</label>
+        <label><input type="checkbox" data-key="cold" />Ice bath / cold shower / sauna</label>
+      </div>
+    </div>
+
+    <!-- Daily Wisdom -->
+    <div class="card" data-category="wisdom">
+      <div class="card-header">
+        <h2>Daily Wisdom</h2>
+        <div class="xp">0 / 1000 XP</div>
+      </div>
+      <div class="items">
+        <label><input type="checkbox" data-key="meditate" />Meditate</label>
+        <label><input type="checkbox" data-key="mentalModel" />Mental model</label>
+        <label><input type="checkbox" data-key="productivityGame" />Productivity game</label>
+        <label><input type="checkbox" data-key="philosophy" />Philosophy</label>
+      </div>
+    </div>
+
+    <!-- Mastery -->
+    <div class="card" data-category="mastery">
+      <div class="card-header">
+        <h2>Mastery</h2>
+        <div class="xp">0 / 2000 XP</div>
+      </div>
+      <div class="items">
+        <label><input type="checkbox" data-key="investingReading" />Investing reading list</label>
+        <label><input type="checkbox" data-key="researchMemo" />Research memo</label>
+        <label><input type="checkbox" data-key="investorInteraction" />Investor interaction</label>
+      </div>
+    </div>
+
+    <!-- Responsibility -->
+    <div class="card" data-category="responsibility">
+      <div class="card-header">
+        <h2>Responsibility</h2>
+        <div class="xp">0 / 2000 XP</div>
+      </div>
+      <div class="items">
+        <label><input type="checkbox" data-key="earnIncome" />Earn income</label>
+        <label><input type="checkbox" data-key="completeTaxes" />Complete taxes</label>
+        <label><input type="checkbox" data-key="hectorBellaEducation" />Hector &amp; Bella education</label>
+      </div>
+    </div>
+
+    <!-- Arete -->
+    <div class="card" data-category="arete">
+      <div class="card-header">
+        <h2>Arete</h2>
+        <div class="xp">0 / 1000 XP</div>
+      </div>
+      <div class="items">
+        <label><input type="checkbox" data-key="familyTime" />Family time</label>
+        <label><input type="checkbox" data-key="golf" />Hit golf balls / play 9 holes</label>
+        <label><input type="checkbox" data-key="fiction" />Read sci-fi / fiction</label>
+        <label><input type="checkbox" data-key="lunchDinner" />Go for lunch or dinner</label>
+        <label><input type="checkbox" data-key="contribution" />Contribution</label>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary">
+      <h2>Daily Summary</h2>
+      <p id="total-xp">Total XP: 0 / 8000</p>
+      <p id="day-rating">Day Rating: <span class="badge red">Red Zone</span></p>
+
+      <div class="streaks">
+        <div class="streak-label" id="streak-fitness">Fitness streak: 0 days</div>
+        <div class="streak-label" id="streak-wisdom">Wisdom streak: 0 days</div>
+        <div class="streak-label" id="streak-mastery">Mastery streak: 0 days</div>
+        <div class="streak-label" id="streak-meditation">Meditation streak: 0 days</div>
+      </div>
+
+      <div class="buttons" style="margin-top:0.6rem;">
+        <button id="save-day">Save Day</button>
+        <button id="reset-day" class="secondary">Reset Day</button>
+      </div>
+    </div>
+
+    <!-- Weekly View -->
+    <div class="week-view">
+      <div class="week-header">
+        <h2>Last 7 Days</h2>
+        <small id="week-range-label"></small>
+      </div>
+      <table class="week-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total XP</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="week-table-body">
+          <!-- Rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const dateInput = document.getElementById('date-input');
+    const totalXpEl = document.getElementById('total-xp');
+    const dayRatingEl = document.getElementById('day-rating');
+    const saveBtn = document.getElementById('save-day');
+    const resetBtn = document.getElementById('reset-day');
+
+    const streakFitnessEl = document.getElementById('streak-fitness');
+    const streakWisdomEl = document.getElementById('streak-wisdom');
+    const streakMasteryEl = document.getElementById('streak-mastery');
+    const streakMeditationEl = document.getElementById('streak-meditation');
+
+    const weekRangeLabel = document.getElementById('week-range-label');
+    const weekTableBody = document.getElementById('week-table-body');
+
+    const MAX_XP = 8000;
+
+    function todayISO() {
+      return new Date().toISOString().slice(0,10);
+    }
+
+    function parseISODate(str) {
+      const [y,m,d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function formatISODate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2,'0');
+      const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Initialise date
+    dateInput.value = todayISO();
+
+    function getKeyForDate(date) {
+      return `arete_xp_${date}`;
+    }
+
+    function getCheckboxes() {
+      return Array.from(document.querySelectorAll('input[type="checkbox"][data-key]'));
+    }
+
+    function readStateFromUI() {
+      const state = {};
+      getCheckboxes().forEach(cb => {
+        state[cb.dataset.key] = cb.checked;
+      });
+      return state;
+    }
+
+    function writeStateToUI(state) {
+      getCheckboxes().forEach(cb => {
+        cb.checked = !!state[cb.dataset.key];
+      });
+    }
+
+    function computeCategoryXp(state) {
+      const xp = {
+        supplements: 0,
+        smoothie: 0,
+        fitness: 0,
+        wisdom: 0,
+        mastery: 0,
+        responsibility: 0,
+        arete: 0,
+      };
+
+      // Supplements
+      if (state.supplementStack) xp.supplements = 500;
+
+      // Smoothie
+      if (state.smoothie) xp.smoothie = 500;
+
+      // Fitness: sunshine, rollerYoga, protein120, exercise, cold
+      const fitnessKeys = ['sunshine','rollerYoga','protein120','exercise','cold'];
+      const fitnessCount = fitnessKeys.filter(k => state[k]).length;
+      if (fitnessCount >= 4) xp.fitness = 1000;
+      else if (fitnessCount >= 2) xp.fitness = 500;
+
+      // Wisdom: meditate, mentalModel, productivityGame, philosophy
+      const wisdomKeys = ['meditate','mentalModel','productivityGame','philosophy'];
+      const wisdomCount = wisdomKeys.filter(k => state[k]).length;
+      if (wisdomCount === 4) xp.wisdom = 1000;
+      else if (wisdomCount === 3) xp.wisdom = 500;
+      else if (wisdomCount === 2) xp.wisdom = 250;
+
+      // Mastery: investingReading, researchMemo, investorInteraction
+      const masteryKeys = ['investingReading','researchMemo','investorInteraction'];
+      const masteryCount = masteryKeys.filter(k => state[k]).length;
+      if (state.researchMemo || state.investorInteraction || masteryCount >= 2) {
+        if (masteryCount > 0) xp.mastery = 2000;
+      }
+
+      // Responsibility: earnIncome, completeTaxes, hectorBellaEducation
+      const respPrimary = state.earnIncome || state.completeTaxes;
+      const respCount = ['earnIncome','completeTaxes','hectorBellaEducation']
+        .filter(k => state[k]).length;
+      if (respPrimary || (state.hectorBellaEducation && respCount >= 2)) {
+        if (respCount > 0) xp.responsibility = 2000;
+      }
+
+      // Arete: any arete item
+      const areteKeys = ['familyTime','golf','fiction','lunchDinner','contribution'];
+      const areteCount = areteKeys.filter(k => state[k]).length;
+      if (areteCount >= 1) xp.arete = 1000;
+
+      return xp;
+    }
+
+    function computeTotalXp(xp) {
+      return Object.values(xp).reduce((a,b) => a + b, 0);
+    }
+
+    function ratingForTotal(total) {
+      if (total >= 6500) return {label: 'Elite Day', cls: 'elite'};
+      if (total >= 5000) return {label: 'Strong Day', cls: 'strong'};
+      if (total >= 3500) return {label: 'Survival Day', cls: 'survival'};
+      return {label: 'Red Zone', cls: 'red'};
+    }
+
+    function getDayState(dateStr) {
+      const key = getKeyForDate(dateStr);
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function updateStreaks(currentDateStr) {
+      const LIMIT_DAYS = 365; // safety cap
+      let fitnessStreak = 0;
+      let wisdomStreak = 0;
+      let masteryStreak = 0;
+      let meditationStreak = 0;
+
+      // Fitness streak
+      (function() {
+        let date = parseISODate(currentDateStr);
+        for (let i = 0; i < LIMIT_DAYS; i++) {
+          const ds = formatISODate(date);
+          const state = getDayState(ds);
+          if (!state) break;
+          const xp = computeCategoryXp(state);
+          if (xp.fitness > 0) {
+            fitnessStreak++;
+          } else {
+            break;
+          }
+          date.setDate(date.getDate() - 1);
+        }
+      })();
+
+      // Wisdom streak
+      (function() {
+        let date = parseISODate(currentDateStr);
+        for (let i = 0; i < LIMIT_DAYS; i++) {
+          const ds = formatISODate(date);
+          const state = getDayState(ds);
+          if (!state) break;
+          const xp = computeCategoryXp(state);
+          if (xp.wisdom > 0) {
+            wisdomStreak++;
+          } else {
+            break;
+          }
+          date.setDate(date.getDate() - 1);
+        }
+      })();
+
+      // Mastery streak
+      (function() {
+        let date = parseISODate(currentDateStr);
+        for (let i = 0; i < LIMIT_DAYS; i++) {
+          const ds = formatISODate(date);
+          const state = getDayState(ds);
+          if (!state) break;
+          const xp = computeCategoryXp(state);
+          if (xp.mastery > 0) {
+            masteryStreak++;
+          } else {
+            break;
+          }
+          date.setDate(date.getDate() - 1);
+        }
+      })();
+
+      // Meditation streak
+      (function() {
+        let date = parseISODate(currentDateStr);
+        for (let i = 0; i < LIMIT_DAYS; i++) {
+          const ds = formatISODate(date);
+          const state = getDayState(ds);
+          if (!state) break;
+          if (state.meditate) {
+            meditationStreak++;
+          } else {
+            break;
+          }
+          date.setDate(date.getDate() - 1);
+        }
+      })();
+
+      streakFitnessEl.textContent = `Fitness streak: ${fitnessStreak} day${fitnessStreak === 1 ? '' : 's'}`;
+      streakWisdomEl.textContent = `Wisdom streak: ${wisdomStreak} day${wisdomStreak === 1 ? '' : 's'}`;
+      streakMasteryEl.textContent = `Mastery streak: ${masteryStreak} day${masteryStreak === 1 ? '' : 's'}`;
+      streakMeditationEl.textContent = `Meditation streak: ${meditationStreak} day${meditationStreak === 1 ? '' : 's'}`;
+    }
+
+    function updateWeekView(currentDateStr) {
+      const baseDate = parseISODate(currentDateStr);
+      const days = [];
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(baseDate.getTime());
+        d.setDate(baseDate.getDate() - i);
+        const iso = formatISODate(d);
+        const state = getDayState(iso) || {};
+        const xp = computeCategoryXp(state);
+        const total = computeTotalXp(xp);
+        const rating = ratingForTotal(total);
+        days.push({date: iso, total, rating});
+      }
+
+      const start = days[0].date;
+      const end = days[days.length - 1].date;
+      weekRangeLabel.textContent = `${start} → ${end}`;
+
+      weekTableBody.innerHTML = '';
+      days.forEach(day => {
+        const tr = document.createElement('tr');
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = day.date;
+        tr.appendChild(tdDate);
+
+        const tdXp = document.createElement('td');
+        tdXp.className = 'week-xp';
+        tdXp.textContent = `${day.total} / ${MAX_XP}`;
+        tr.appendChild(tdXp);
+
+        const tdRating = document.createElement('td');
+        tdRating.className = 'week-rating';
+        const span = document.createElement('span');
+        span.className = `badge ${day.rating.cls}`;
+        span.textContent = day.rating.label;
+        tdRating.appendChild(span);
+        tr.appendChild(tdRating);
+
+        weekTableBody.appendChild(tr);
+      });
+    }
+
+    function updateUI() {
+      const state = readStateFromUI();
+      const xp = computeCategoryXp(state);
+      const total = computeTotalXp(xp);
+
+      // Update per-card XP displays
+      const catMax = {
+        supplements: 500,
+        smoothie: 500,
+        fitness: 1000,
+        wisdom: 1000,
+        mastery: 2000,
+        responsibility: 2000,
+        arete: 1000,
+      };
+      document.querySelectorAll('.card').forEach(card => {
+        const cat = card.dataset.category;
+        const xpEl = card.querySelector('.xp');
+        xpEl.textContent = `${xp[cat]} / ${catMax[cat]} XP`;
+      });
+
+      // Total + rating
+      totalXpEl.textContent = `Total XP: ${total} / ${MAX_XP}`;
+      const rating = ratingForTotal(total);
+      dayRatingEl.innerHTML = `Day Rating: <span class="badge ${rating.cls}">${rating.label}</span>`;
+
+      // Streaks & week view based on selected date
+      const currentDateStr = dateInput.value || todayISO();
+      updateStreaks(currentDateStr);
+      updateWeekView(currentDateStr);
+    }
+
+    function saveDay() {
+      const date = dateInput.value || todayISO();
+      const key = getKeyForDate(date);
+      const state = readStateFromUI();
+      localStorage.setItem(key, JSON.stringify(state));
+      alert('Day saved');
+      updateUI();
+    }
+
+    function loadDay(date) {
+      const key = getKeyForDate(date);
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const state = JSON.parse(raw);
+        writeStateToUI(state);
+      } else {
+        // clear
+        writeStateToUI({});
+      }
+      updateUI();
+    }
+
+    function resetDay() {
+      writeStateToUI({});
+      updateUI();
+    }
+
+    // Listeners
+    getCheckboxes().forEach(cb => {
+      cb.addEventListener('change', updateUI);
+    });
+
+    dateInput.addEventListener('change', () => {
+      loadDay(dateInput.value || todayISO());
+    });
+
+    saveBtn.addEventListener('click', saveDay);
+    resetBtn.addEventListener('click', resetDay);
+
+    // Init
+    loadDay(dateInput.value);
+  </script>
+</body>
+</html>
