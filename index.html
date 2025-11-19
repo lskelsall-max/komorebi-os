@@ -786,9 +786,21 @@ if (wisdomCount === wisdomKeys.length) {
       }
 
       // Arete
-      const areteKeys = ['familyTime', 'golf', 'fiction', 'lunchDinner', 'contribution'];
-      const areteCount = areteKeys.filter(k => state[k]).length;
-      if (areteCount >= 1) xp.arete = 1000;
+      const areteKeys = [
+  'familyTime',
+  'golf',
+  'fiction',
+  'lunchDinner',
+  'contribution',
+  'valueDiscipline',
+  'valueCourage',
+  'valueService',
+  'valueTruth',
+  'valueLove',
+  'valueCuriosity',
+];
+const areteCount = areteKeys.filter(k => state[k]).length;
+if (areteCount >= 1) xp.arete = 1000;
 
       return xp;
     }
