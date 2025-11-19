@@ -1,0 +1,1 @@
+a life OS app that helps me manage my daily protocols (experimenting wiht the idea of creating kaizen like daily/weekly progress across key areas: health, arete (living in accordance with values), mastery and wisdom. Inspired by Munger, Stoicism, Duolingo etc.
