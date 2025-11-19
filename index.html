@@ -315,16 +315,69 @@
       }
     }
 
-    @media (max-width: 768px) {
-      main {
-        max-height: none;
-        overflow-y: visible;
-      }
-      .section-grid-3,
-      .section-grid-2 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
+  .app-title {
+    font-size: 1.3rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .summary-bar {
+    padding: 0.35rem 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .summary-main strong {
+    font-size: 0.9rem;
+  }
+
+  .streak-chip {
+    font-size: 0.7rem;
+    padding: 0.08rem 0.45rem;
+  }
+
+  .prompt-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+
+  main {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .section-grid-3,
+  .section-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card {
+    padding: 0.55rem 0.6rem;
+    min-height: auto;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+  }
+
+  .xp {
+    font-size: 0.75rem;
+  }
+
+  .items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
     /* CARDS */
 
