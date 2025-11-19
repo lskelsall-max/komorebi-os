@@ -144,12 +144,6 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     }
 
-    .summary-bar.prompts-bar {
-      margin-top: 0.2rem;
-      margin-bottom: 0.6rem;
-      grid-template-columns: minmax(0, 1fr);
-    }
-
     @media (max-width: 900px) {
       .summary-bar {
         grid-template-columns: minmax(0, 1fr);
@@ -273,7 +267,7 @@
     /* MAIN GRID LAYOUT */
 
     main {
-      max-height: calc(100vh - 200px);
+      max-height: calc(100vh - 160px);
       overflow-y: auto;
       padding-right: 0.15rem;
     }
@@ -458,15 +452,6 @@
     .sub-list li {
       margin: 0.05rem 0;
     }
-
-    .prompt-row {
-      font-size: 0.82rem;
-    }
-
-    .prompt-label {
-      font-weight: 600;
-      color: var(--accent-gold-strong);
-    }
   </style>
 </head>
 <body>
@@ -494,7 +479,7 @@
     <section class="summary-bar">
       <div class="summary-main">
         <div class="summary-main-top">
-          <div id="total-xp">Total XP: 0 / 8000</div>
+          <div id="total-xp">Total XP: 0 / 9000</div>
           <div class="day-rating" id="day-rating">
             Day Rating: <span class="badge red">Red Zone</span>
           </div>
@@ -504,33 +489,6 @@
       <div class="summary-actions">
         <button id="save-day">Save Day</button>
         <button id="reset-day" class="secondary">Reset Day</button>
-      </div>
-    </section>
-
-    <!-- DAILY PROMPTS -->
-    <section class="summary-bar prompts-bar">
-      <div class="summary-main">
-        <div class="summary-main-top">
-          <strong>Today’s prompts</strong>
-        </div>
-        <div style="display: grid; gap: 0.15rem; margin-top: 0.05rem;">
-          <div class="prompt-row">
-            <span class="prompt-label">Mental model:</span>
-            <span id="prompt-mental-model"></span>
-          </div>
-          <div class="prompt-row">
-            <span class="prompt-label">Productivity:</span>
-            <span id="prompt-game"></span>
-          </div>
-          <div class="prompt-row">
-            <span class="prompt-label">Investor:</span>
-            <span id="prompt-reading"></span>
-          </div>
-          <div class="prompt-row">
-            <span class="prompt-label">Quote:</span>
-            <span id="prompt-quote"></span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -614,12 +572,27 @@
               </div>
             </div>
           </div>
+
+          <!-- Workout of the Day (full-width row under health cards) -->
+          <div class="section-grid-1" style="margin-top: 0.4rem;">
+            <div class="card workout-card">
+              <div class="card-header">
+                <div class="card-title-block">
+                  <div class="card-title">Workout of the Day</div>
+                  <div class="card-subtitle" id="wod-type">Loading…</div>
+                </div>
+              </div>
+              <div class="items items-wide">
+                <ul class="sub-list" id="wod-details"></ul>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- MIND & ARETE -->
         <section class="section-block">
           <h2 class="section-title">Mind & Arete</h2>
-          <div class="section-grid-2">
+          <div class="section-grid-3">
             <!-- Wisdom & Clarity -->
             <div class="card" data-category="wisdom">
               <div class="card-header">
@@ -656,7 +629,7 @@
             </div>
 
             <!-- Values -->
-            <div class="card" data-category="arete">
+            <div class="card" data-category="values">
               <div class="card-header">
                 <div class="card-title-block">
                   <div class="card-title">Values</div>
@@ -665,12 +638,12 @@
                 <div class="xp">0 / 1000 XP</div>
               </div>
               <div class="items">
-                <label><input type="checkbox" data-key="valueDiscipline" />Discipline</label>
                 <label><input type="checkbox" data-key="valueCourage" />Courage</label>
-                <label><input type="checkbox" data-key="valueService" />Service / Stewardship</label>
-                <label><input type="checkbox" data-key="valueTruth" />Truth / Honesty</label>
-                <label><input type="checkbox" data-key="valueLove" />Love & Presence</label>
-                <label><input type="checkbox" data-key="valueCuriosity" />Curiosity</label>
+                <label><input type="checkbox" data-key="valueAdventure" />Adventure</label>
+                <label><input type="checkbox" data-key="valueSelfImprovement" />Self-improvement</label>
+                <label><input type="checkbox" data-key="valueIntegrity" />Integrity</label>
+                <label><input type="checkbox" data-key="valueDiscipline" />Discipline</label>
+                <label><input type="checkbox" data-key="valueKindness" />Kindness</label>
               </div>
             </div>
           </div>
@@ -725,39 +698,10 @@
     const streakChipsEl = document.getElementById('streak-chips');
     const xpPillValue = document.getElementById('xp-pill-value');
 
-    const MAX_XP = 8000;
+    const wodTypeEl = document.getElementById('wod-type');
+    const wodDetailsEl = document.getElementById('wod-details');
 
-    /* ------- Daily prompt data (seed lists – extend as you like) ------- */
-
-    const mentalModels = [
-      'Inversion — think first about what you want to avoid.',
-      'Second-order effects — what happens after the first step?',
-      'Circle of competence — stay within what you truly understand.',
-      'Regret minimisation — what would your 80-year-old self choose?',
-    ];
-
-    const productivityGames = [
-      '10-minute war: attack one avoided task for 10 minutes.',
-      'Shutdown ritual: spend 5 minutes planning tomorrow.',
-      'Deep-work sprint: 25 minutes on a single, important task.',
-      'Distraction audit: note every distraction in the next hour.',
-    ];
-
-    const investingReads = [
-      'Re-read your notes on PDD’s comparative advantage.',
-      'Buffett 1997 Shareholder Letter — section on float.',
-      'Kaspi.kz innovation flywheel — one memo or article.',
-      'One page from your “terminal portfolio” notes.',
-    ];
-
-    const quotes = [
-      '“The score takes care of itself.” — Bill Walsh',
-      '“Focus is a superpower.”',
-      '“Discipline equals freedom.” — Jocko Willink',
-      '“Quality is not an act, it is a habit.”',
-    ];
-
-    /* -------------------- Date helpers -------------------- */
+    const MAX_XP = 9000;
 
     function todayISO() {
       return new Date().toISOString().slice(0, 10);
@@ -801,8 +745,6 @@
       });
     }
 
-    /* -------------------- XP logic -------------------- */
-
     function computeCategoryXp(state) {
       const xp = {
         supplements: 0,
@@ -812,6 +754,7 @@
         mastery: 0,
         responsibility: 0,
         arete: 0,
+        values: 0,
       };
 
       // Supplements
@@ -826,7 +769,7 @@
       if (fitnessCount >= 4) xp.fitness = 1000;
       else if (fitnessCount >= 2) xp.fitness = 500;
 
-      // Wisdom – 6 items
+      // Wisdom (6 items including gratitude + journal)
       const wisdomKeys = [
         'gratitude',
         'journal',
@@ -836,13 +779,9 @@
         'philosophy',
       ];
       const wisdomCount = wisdomKeys.filter(k => state[k]).length;
-      if (wisdomCount === wisdomKeys.length) {
-        xp.wisdom = 1000;
-      } else if (wisdomCount >= 4) {
-        xp.wisdom = 500;
-      } else if (wisdomCount >= 3) {
-        xp.wisdom = 250;
-      }
+      if (wisdomCount >= 4) xp.wisdom = 1000;
+      else if (wisdomCount === 3) xp.wisdom = 500;
+      else if (wisdomCount === 2) xp.wisdom = 250;
 
       // Mastery
       const masteryKeys = ['investingReading', 'researchMemo', 'investorInteraction'];
@@ -859,22 +798,25 @@
         if (respCount > 0) xp.responsibility = 2000;
       }
 
-      // Arete (behaviours + values)
-      const areteKeys = [
-        'familyTime',
-        'golf',
-        'fiction',
-        'lunchDinner',
-        'contribution',
-        'valueDiscipline',
-        'valueCourage',
-        'valueService',
-        'valueTruth',
-        'valueLove',
-        'valueCuriosity',
-      ];
+      // Arete (behaviours only)
+      const areteKeys = ['familyTime', 'golf', 'fiction', 'lunchDinner', 'contribution'];
       const areteCount = areteKeys.filter(k => state[k]).length;
       if (areteCount >= 1) xp.arete = 1000;
+
+      // Values (base + bonus)
+      // 1+ value ticked  = 500 XP
+      // 3+ values ticked = 1000 XP total
+      const valuesKeys = [
+        'valueCourage',
+        'valueAdventure',
+        'valueSelfImprovement',
+        'valueIntegrity',
+        'valueDiscipline',
+        'valueKindness',
+      ];
+      const valuesCount = valuesKeys.filter(k => state[k]).length;
+      if (valuesCount >= 1) xp.values = 500;
+      if (valuesCount >= 3) xp.values = 1000;
 
       return xp;
     }
@@ -901,14 +843,13 @@
       }
     }
 
-    /* -------------------- Streaks -------------------- */
-
     function updateStreaks(currentDateStr) {
       const LIMIT_DAYS = 365;
       let fitnessStreak = 0;
       let wisdomStreak = 0;
       let masteryStreak = 0;
       let meditationStreak = 0;
+      let valuesStreak = 0;
 
       // Fitness streak
       (function () {
@@ -965,11 +906,26 @@
         }
       })();
 
+      // Values streak (any values ticked)
+      (function () {
+        let date = parseISODate(currentDateStr);
+        for (let i = 0; i < LIMIT_DAYS; i++) {
+          const ds = formatISODate(date);
+          const state = getDayState(ds);
+          if (!state) break;
+          const xp = computeCategoryXp(state);
+          if (xp.values > 0) valuesStreak++;
+          else break;
+          date.setDate(date.getDate() - 1);
+        }
+      })();
+
       const chips = [
         { label: 'Fitness', icon: '💪', value: fitnessStreak },
         { label: 'Wisdom', icon: '📚', value: wisdomStreak },
         { label: 'Mastery', icon: '🛠️', value: masteryStreak },
         { label: 'Meditation', icon: '🧘', value: meditationStreak },
+        { label: 'Values', icon: '🔥', value: valuesStreak },
       ];
 
       streakChipsEl.innerHTML = chips
@@ -980,29 +936,59 @@
         .join('');
     }
 
-    /* -------------------- Daily prompts -------------------- */
+    /* WORKOUT OF THE DAY LOGIC */
 
-    function pickForDate(arr, dateStr) {
-      if (!arr.length) return '';
-      const d = parseISODate(dateStr);
-      const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-      const index = seed % arr.length;
-      return arr[index];
+    function getWorkoutDataForDate(date) {
+      const dow = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+      // 3-day loop starting Monday: Rehab (0), Strength (1), Cardio (2)
+      let index;
+      if (dow === 0) index = 0;           // Sunday treated as Rehab day
+      else index = (dow - 1) % 3;        // Mon->0, Tue->1, Wed->2, Thu->0, ...
+
+      const types = ['Rehab', 'Strength', 'Cardio'];
+      const type = types[index];
+
+      const rehabOptions = [
+        ['Yoga / mobility 30–40 mins', 'Spine & hip opener focus'],
+        ['Foam roller + hip capsule 20 mins', 'Psoas release + decompression lie-back'],
+        ['Resistance bands activation 25 mins', 'Glutes, scapula, core stability'],
+      ];
+
+      const strengthOptions = [
+        ['Blueprint strength circuit 30–40 mins', 'Push / pull / hinge with perfect form'],
+        ['Heavy strength (Huberman-style)', '3–5 sets of 5 reps on big lifts only'],
+      ];
+
+      const cardioOptions = [
+        ['Trail hike 45–75 mins', 'Keep nasal breathing where possible'],
+        ['Waterfall run loop 25–35 mins', 'Easy–moderate pace, smooth strides'],
+        ['Swim 20–30 mins', 'Continuous or intervals, relaxed breathing'],
+      ];
+
+      let options;
+      if (type === 'Rehab') options = rehabOptions;
+      else if (type === 'Strength') options = strengthOptions;
+      else options = cardioOptions;
+
+      // deterministic selection based on day-of-year
+      const startOfYear = new Date(date.getFullYear(), 0, 0);
+      const dayOfYear = Math.floor((date - startOfYear) / 86400000);
+      const idx = dayOfYear % options.length;
+      const detailLines = options[idx];
+
+      return { type, detailLines };
     }
 
-    function updateDailyPrompts(dateStr) {
-      const mmEl = document.getElementById('prompt-mental-model');
-      const gameEl = document.getElementById('prompt-game');
-      const readEl = document.getElementById('prompt-reading');
-      const quoteEl = document.getElementById('prompt-quote');
-
-      mmEl.textContent = pickForDate(mentalModels, dateStr);
-      gameEl.textContent = pickForDate(productivityGames, dateStr);
-      readEl.textContent = pickForDate(investingReads, dateStr);
-      quoteEl.textContent = pickForDate(quotes, dateStr);
+    function updateWorkoutOfDay(currentDateStr) {
+      if (!wodTypeEl || !wodDetailsEl) return;
+      const date = parseISODate(currentDateStr);
+      const workout = getWorkoutDataForDate(date);
+      wodTypeEl.textContent = `${workout.type} day`;
+      wodDetailsEl.innerHTML = workout.detailLines
+        .map(line => `<li>${line}</li>`)
+        .join('');
     }
-
-    /* -------------------- UI update + persistence -------------------- */
 
     function updateUI() {
       const state = readStateFromUI();
@@ -1017,11 +1003,13 @@
         mastery: 2000,
         responsibility: 2000,
         arete: 1000,
+        values: 1000,
       };
 
       document.querySelectorAll('.card').forEach(card => {
         const cat = card.dataset.category;
         const xpEl = card.querySelector('.xp');
+        if (!cat || !xpEl || !(cat in catMax)) return;
         xpEl.textContent = `${xp[cat]} / ${catMax[cat]} XP`;
       });
 
@@ -1033,7 +1021,7 @@
 
       const currentDateStr = dateInput.value || todayISO();
       updateStreaks(currentDateStr);
-      updateDailyPrompts(currentDateStr);
+      updateWorkoutOfDay(currentDateStr);
     }
 
     function saveDay() {
