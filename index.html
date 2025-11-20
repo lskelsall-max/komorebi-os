@@ -32,54 +32,53 @@
       --success: #4ade80;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    /* --- CSS RESET (THE FIX FOR PADDING) --- */
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
     
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      /* FIXED GRADIENT & PADDING */
-      background: linear-gradient(180deg, var(--komorebi-mint) 0%, var(--bg-forest) 120px, var(--bg-deep) 100%);
+      background: linear-gradient(180deg, var(--komorebi-mint) 0%, var(--bg-forest) 150px, var(--bg-deep) 100%);
       background-attachment: fixed;
       color: var(--text-main); 
-      min-height: 100vh;
+      /* Safe area for iPhone notch */
+      padding-top: env(safe-area-inset-top);
       padding-bottom: 40px;
     }
 
-    /* CONTAINER FIX: NO TOP PADDING EXCEPT NOTCH */
     .container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        padding-top: env(safe-area-inset-top); 
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
     }
 
-    /* HEADER FIX */
+    /* HEADER */
     .app-header { 
       display: flex; 
       justify-content: space-between; 
       align-items: flex-start; 
-      padding-top: 1rem; /* Tiny breathing room from top edge */
-      padding-bottom: 1rem; 
-      margin-bottom: 0.5rem;
+      padding-top: 0.8rem;     
+      padding-bottom: 0.8rem; 
+      margin-bottom: 0;
     }
 
     .app-title-block { display: flex; flex-direction: column; }
     
     .app-title { 
       font-size: 1.6rem; 
-      font-weight: 800; 
+      font-weight: 900; 
       text-transform: uppercase; 
-      /* Dark shadow to make text pop on the Mint background */
-      text-shadow: 0 2px 15px rgba(0,0,0,0.2); 
+      letter-spacing: -0.02em;
       line-height: 1;
-      margin-bottom: 4px;
-      color: #050f0a; /* Dark text on mint header looks cleaner */
+      margin-bottom: 2px;
+      color: #050f0a; /* Sharp Dark Green/Black */
+      text-shadow: none; /* REMOVED SHADOW FOR CRISPNESS */
     }
     
     .app-subtitle { 
       font-size: 0.75rem; 
       color: #1f352a; 
-      font-weight: 600;
+      font-weight: 700;
       opacity: 0.9; 
     }
 
@@ -87,11 +86,11 @@
       display: flex; 
       flex-direction: column; 
       align-items: flex-end; 
-      gap: 0.4rem; 
+      gap: 0.3rem; 
     }
 
     #date-input { 
-      background: rgba(0, 0, 0, 0.2); 
+      background: rgba(0, 0, 0, 0.1); 
       border: 1px solid rgba(0,0,0,0.1); 
       border-radius: 6px; 
       padding: 0.2rem 0.5rem; 
@@ -108,6 +107,30 @@
       font-weight: 800; 
     }
 
+    /* ASK THE JAGUAR (SEARCH) */
+    .jaguar-search-container {
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .jaguar-input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(14, 32, 22, 0.6);
+        color: #fff;
+        font-size: 0.95rem;
+        backdrop-filter: blur(5px);
+        transition: all 0.2s;
+    }
+    .jaguar-input:focus {
+        outline: none;
+        border-color: var(--accent-gold);
+        background: rgba(14, 32, 22, 0.9);
+        box-shadow: 0 0 15px rgba(245, 193, 92, 0.2);
+    }
+    .jaguar-input::placeholder { color: rgba(255,255,255,0.5); font-style: italic; }
+    
     /* SUMMARY BAR */
     .summary-bar {
       background: rgba(6, 19, 13, 0.8); 
@@ -212,7 +235,7 @@
     .floating-xp { position: fixed; color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 9999; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
     @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) } 100% { opacity: 0; transform: translateY(-50px) } }
 
-    textarea { width: 100%; height: 120px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; padding: 0.8rem; font-family: inherit; line-height: 1.5; font-size: 0.9rem; }
+    textarea { width: 100%; height: 100px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle); border-radius: 8px; color: #fff; padding: 0.8rem; font-family: inherit; line-height: 1.5; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -231,10 +254,15 @@
       </div>
     </header>
 
+    <!-- JAGUAR SEARCH (Vector Brain) -->
+    <div class="jaguar-search-container">
+        <input type="text" id="jaguar-input" class="jaguar-input" placeholder="Ask the Jaguar... (Search your PDFs)" onkeypress="handleJaguarSearch(event)">
+    </div>
+
     <!-- SUMMARY -->
     <section class="summary-bar">
       <div class="summary-left">
-        <span id="total-xp">0</span>
+        <span id="total-xp">Total: 0</span>
         <span id="day-rating" class="badge red">Red Zone</span>
       </div>
       <div class="summary-actions">
@@ -257,12 +285,12 @@
           <div class="modal-header">
               Customize 
               <div>
-                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset All</button>
+                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset</button>
                   <span style="cursor:pointer" onclick="closeModal('editor-modal')">✕</span>
               </div>
           </div>
           <div class="lib-tabs">
-              <div class="lib-tab active" onclick="switchEditorTab('protocols')">Checkboxes</div>
+              <div class="lib-tab active" onclick="switchEditorTab('protocols')">Protocols</div>
               <div class="lib-tab" onclick="switchEditorTab('workouts')">Workouts</div>
               <div class="lib-tab" onclick="switchEditorTab('mentalModels')">Models</div>
               <div class="lib-tab" onclick="switchEditorTab('productivity')">Productivity</div>
@@ -285,10 +313,17 @@
         <div class="lib-tab" onclick="switchLibTab('productivity')">Productivity</div>
         <div class="lib-tab" onclick="switchLibTab('investors')">Investors</div>
         <div class="lib-tab" onclick="switchLibTab('quotes')">Quotes</div>
-        <div class="lib-tab" onclick="switchLibTab('docs')">My Docs</div>
       </div>
       <input type="text" id="lib-search" class="search-bar" placeholder="Search..." onkeyup="renderLibrary()">
       <div id="library-list"></div>
+    </div>
+  </div>
+  
+  <!-- ANSWER MODAL -->
+  <div class="modal-overlay" id="answer-modal">
+    <div class="modal-content">
+      <div class="modal-header">Jaguar Insight <span style="cursor:pointer" onclick="closeModal('answer-modal')">✕</span></div>
+      <div id="answer-content" style="line-height: 1.6; color: #ddd;"></div>
     </div>
   </div>
 
@@ -652,28 +687,23 @@
     let currentLibTab = 'mentalModels';
     let currentEditorTab = 'protocols';
     let currentUser = null;
+    let previousXP = 0;
 
     // --- INITIALIZATION ---
     async function init() {
-        // 1. Load Config from LocalStorage or Default
         const savedConfig = localStorage.getItem('komorebi_custom_config');
         if (savedConfig) {
             APP_CONFIG = JSON.parse(savedConfig);
         } else {
-            APP_CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG)); // Deep copy
+            APP_CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
         }
 
-        // 2. Set Date
         document.getElementById('date-input').value = new Date().toISOString().slice(0, 10);
-        
-        // 3. Render
         renderApp();
         loadDay();
         
-        // 4. Listeners
         document.getElementById('date-input').addEventListener('change', loadDay);
-
-        // 5. Check Auth (Cloud Sync)
+        
         if (supabaseClient) checkUser();
     }
     
@@ -706,8 +736,6 @@
 
     async function saveToCloud() {
         if (!currentUser) return;
-        
-        // Separate Config and History
         const history = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -715,20 +743,14 @@
                 history[key] = JSON.parse(localStorage.getItem(key));
             }
         }
-
         const payload = {
             user_id: currentUser.id,
-            config: APP_CONFIG,     // Separate column
-            history: history,       // Separate column
+            data: { config: APP_CONFIG, history: history },
             updated_at: new Date()
         };
-
         const { error } = await supabaseClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
-        
-        if (error) {
-            console.error("Sync Failed:", error);
-            alert("Sync Failed: " + error.message);
-        } else {
+        if (error) alert("Sync Failed: " + error.message);
+        else {
             document.getElementById('cloud-btn').innerText = "☁️✔";
             alert("Synced to Cloud ✅");
         }
@@ -736,33 +758,83 @@
 
     async function loadCloudData() {
         if (!currentUser) return;
-        const { data, error } = await supabaseClient.from('user_data').select('config, history').eq('user_id', currentUser.id).single();
-        
-        if (data) {
+        const { data, error } = await supabaseClient.from('user_data').select('data').eq('user_id', currentUser.id).single();
+        if (data && data.data) {
             // Restore Config
-            if (data.config) {
-                APP_CONFIG = data.config;
+            if (data.data.config) {
+                APP_CONFIG = data.data.config;
                 localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
             }
             // Restore History
-            if (data.history) {
-                Object.keys(data.history).forEach(key => {
-                    localStorage.setItem(key, JSON.stringify(data.history[key]));
+            if (data.data.history) {
+                Object.keys(data.data.history).forEach(key => {
+                    localStorage.setItem(key, JSON.stringify(data.data.history[key]));
                 });
             }
         }
     }
     
-    // --- MANUAL DOCUMENT UPLOAD ---
-    async function saveDocument() {
-        if(!currentUser) return alert("Please log in (Cloud Button) to save docs.");
-        // Simple mock for now, needs SQL setup for 'documents' table
-        alert("Document saving requires SQL setup. Use the Editor for Config changes for now.");
+    // --- VECTOR SEARCH (ASK THE JAGUAR) ---
+    async function handleJaguarSearch(event) {
+        if (event.key === 'Enter') {
+            const query = document.getElementById('jaguar-input').value;
+            if (!query) return;
+            
+            // 1. Search Local Library (Immediate Results)
+            const localResults = searchLocalLibrary(query);
+            
+            // 2. Search Vector DB (If Available)
+            let vectorResults = [];
+            if (supabaseClient) {
+                // Mocking vector search call logic - real vector search requires backend embedding generation
+                // For now, we search text content if 'fts' enabled, or just return local
+                 const { data, error } = await supabaseClient.rpc('search_documents', {
+                    query_text: query,
+                    match_count: 3
+                });
+                if (data) vectorResults = data;
+            }
+            
+            displayAnswer(query, localResults, vectorResults);
+        }
     }
-    
-    async function loadMyDocs() {
-        return []; // Placeholder
+
+    function searchLocalLibrary(query) {
+        const results = [];
+        const q = query.toLowerCase();
+        
+        // Search all library categories
+        Object.values(APP_CONFIG.library).flat().forEach(item => {
+            const text = (item.name || item) + " " + (item.desc || item.resource || "");
+            if (text.toLowerCase().includes(q)) results.push(item);
+        });
+        return results.slice(0, 3);
     }
+
+    function displayAnswer(query, local, vector) {
+        let html = `<b>Query:</b> ${query}<br><br>`;
+        
+        if (local.length > 0) {
+            html += `<b>From Your Library:</b><br>`;
+            local.forEach(item => {
+                html += `• ${item.name || item} <span style="color:#aaa; font-size:0.8rem">${item.desc || item.resource || ""}</span><br>`;
+            });
+            html += `<br>`;
+        }
+        
+        if (vector.length > 0) {
+            html += `<b>From The Brain (PDFs):</b><br>`;
+            vector.forEach(item => {
+                html += `• ${item.content.substring(0, 150)}...<br>`;
+            });
+        } else if (vector.length === 0 && local.length === 0) {
+            html += "No matches found in Library or Brain.";
+        }
+
+        document.getElementById('answer-content').innerHTML = html;
+        openModal('answer-modal');
+    }
+
 
     // --- MAIN RENDERER ---
     function renderApp() {
@@ -873,7 +945,6 @@
             });
         } else if (currentEditorTab === 'workouts') {
             let html = `<div class="editor-section"><div class="editor-label">Daily Workouts</div>`;
-            if(!APP_CONFIG.workouts) APP_CONFIG.workouts = [];
             APP_CONFIG.workouts.forEach((w, idx) => {
                 html += `<div class="editor-row"><div style="width:80px; font-size:0.8rem;">Day ${idx}</div>
                 <input class="editor-input" value="${w.t}" onchange="updateConfigValue('workouts', '${idx}.t', this.value)">
@@ -881,7 +952,6 @@
             });
             container.innerHTML = html + `</div>`;
         } else {
-            // Library Editor
             const key = currentEditorTab; 
             let html = `<div class="editor-section"><div class="editor-label">Add New Item</div>
             <div class="editor-row"><input id="new-lib-1" class="editor-input" placeholder="Name / Quote">`;
@@ -1037,6 +1107,8 @@
     function openSettings() { document.getElementById('export-area').value = JSON.stringify({...localStorage}, null, 2); openModal('settings-modal'); }
     function restoreData() { try { const d = JSON.parse(document.getElementById('export-area').value); if(confirm("Overwrite?")) { localStorage.clear(); Object.keys(d).forEach(k => localStorage.setItem(k, d[k])); location.reload(); } } catch(e) { alert("Invalid JSON"); } }
     function renderStats() { const container = document.getElementById('stats-chart'); container.innerHTML = ''; const today = new Date(); for (let i=6; i>=0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); const iso = d.toISOString().slice(0,10); const key = `komorebi_${iso}`; const raw = localStorage.getItem(key); let xp = 0; if (raw) { const s = JSON.parse(raw); xp = 1000; } const group = document.createElement('div'); group.className = 'bar-group'; group.innerHTML = `<div class="bar" style="height:${xp>0?50:2}%"></div><div class="bar-label">${iso.slice(5)}</div>`; container.appendChild(group); } openModal('stats-modal'); }
+    function handleJaguarSearch(event) { if(event.key === 'Enter') { const query = document.getElementById('jaguar-input').value; if(!query) return; displayAnswer(query, [], []); } }
+    function displayAnswer(query, local, vector) { document.getElementById('answer-content').innerHTML = `<b>Query:</b> ${query}<br><br>Searching... (Backend AI connection pending)`; openModal('answer-modal'); }
 
     init();
   </script>
