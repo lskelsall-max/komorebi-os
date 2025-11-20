@@ -1,88 +1,3 @@
-<!-- Add Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-// --- SUPABASE CONFIGURATION ---
-const SUPABASE_URL = 'https://gzxnrhxswleubryhemyz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_UZ5K2X_Mi51afcOHTIW_rg_6KH7fbo5';
-const supabase = supa.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Global User Object
-let currentUser = null;
-
-// --- AUTHENTICATION LOGIC ---
-async function login() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-    });
-    if (error) alert("Login failed: " + error.message);
-}
-
-async function logout() {
-    const { error } = await supabase.auth.signOut();
-    if (!error) window.location.reload();
-}
-
-// --- NEW INIT LOGIC ---
-async function initApp() {
-    // Check if user is logged in
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-        currentUser = session.user;
-        document.getElementById('login-btn').innerText = "Logout";
-        document.getElementById('login-btn').onclick = logout;
-        
-        // LOAD CLOUD DATA
-        await loadCloudData();
-    } else {
-        // Fallback to LocalStorage if not logged in
-        console.log("No user. Using LocalStorage.");
-        loadLocalData();
-    }
-    
-    renderApp();
-    updateVisuals();
-}
-
-// --- CLOUD SYNC FUNCTIONS ---
-async function saveToCloud() {
-    if (!currentUser) return alert("Log in to save to cloud.");
-    
-    const historyKey = `komorebi_history`;
-    // Gather all local history
-    // (In a real app, we'd structure this better, but this is the bridge step)
-    
-    const payload = {
-        user_id: currentUser.id,
-        config: APP_CONFIG,
-        updated_at: new Date()
-    };
-
-    // Upsert (Update if exists, Insert if new)
-    const { error } = await supabase
-        .from('user_data')
-        .upsert(payload, { onConflict: 'user_id' });
-
-    if (error) alert("Cloud Save Failed: " + error.message);
-    else alert("Synced to Cloud ✅");
-}
-
-async function loadCloudData() {
-    const { data, error } = await supabase
-        .from('user_data')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single();
-
-    if (data) {
-        if (data.config) APP_CONFIG = data.config;
-        // You would also load history here
-        console.log("Cloud data loaded");
-    }
-}
-</script>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,6 +5,9 @@ async function loadCloudData() {
   <title>Komorebi OS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   
+  <!-- SUPABASE SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <!-- APP ICON -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%230e2016%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2270%22>🌿</text></svg>">
@@ -241,6 +159,7 @@ async function loadCloudData() {
     /* DETAILS DROPDOWN */
     details.details-list { margin-top: 0.2rem; font-size: 0.75rem; color: var(--text-muted); margin-left: 1.5rem; }
     details.details-list summary { cursor: pointer; list-style: none; outline: none; opacity: 0.7; }
+    details.details-list summary:hover { opacity: 1; }
     details.details-list summary::-webkit-details-marker { display: none; }
     details.details-list summary::before { content: "▸"; display: inline-block; margin-right: 0.3rem; font-size: 0.7rem; }
     details.details-list[open] summary::before { content: "▾"; }
@@ -260,6 +179,7 @@ async function loadCloudData() {
     .editor-section { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .editor-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap;}
     .editor-input { background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); color: var(--text-main); padding: 0.5rem; border-radius: 6px; flex: 1; min-width: 120px; font-family: inherit; font-size: 0.85rem;}
+    .editor-input-sm { width: 70px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); color: var(--text-main); padding: 0.5rem; border-radius: 6px; text-align: center;}
     .editor-label { font-size: 0.75rem; color: var(--komorebi-mint); margin-bottom: 0.5rem; display: block; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
     .item-edit-container { margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 6px; display: flex; gap: 0.5rem; align-items: center; }
     .item-edit-inputs { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
@@ -271,6 +191,7 @@ async function loadCloudData() {
     .lib-tab { cursor: pointer; padding: 0.4rem 0.8rem; font-size: 0.85rem; color: var(--text-muted); border-radius: 6px; white-space: nowrap; background: rgba(255,255,255,0.05); transition: all 0.2s; }
     .lib-tab.active { background: var(--komorebi-mint); color: #050f0a; font-weight: 700; }
     .lib-item { background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid transparent; transition: border-color 0.2s; }
+    .lib-item:hover { border-color: var(--komorebi-mint-soft); }
     .lib-title { color: var(--komorebi-mint); font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem;}
     .lib-desc { color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
 
@@ -311,10 +232,10 @@ async function loadCloudData() {
       </div>
       <div class="summary-actions">
         <button id="save-day" onclick="saveDay()">Save</button>
+        <button id="cloud-btn" class="secondary icon-btn" title="Cloud Sync" onclick="cloudSync()">☁️</button>
         <button class="secondary icon-btn" title="Library" onclick="openLibrary()">📖</button>
         <button class="secondary icon-btn" title="Stats" onclick="renderStats()">📊</button>
         <button class="secondary icon-btn" title="Customize" onclick="openEditor()">✏️</button>
-        <button class="secondary icon-btn" title="Data" onclick="openSettings()">⚙️</button>
       </div>
     </section>
 
@@ -326,19 +247,16 @@ async function loadCloudData() {
   <div class="modal-overlay" id="editor-modal">
       <div class="modal-content">
           <div class="modal-header">
-              Customize 
+              Customize Protocol 
               <div>
-                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset All</button>
+                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset</button>
                   <span style="cursor:pointer" onclick="closeModal('editor-modal')">✕</span>
               </div>
           </div>
           <div class="lib-tabs">
-              <div class="lib-tab active" onclick="switchEditorTab('protocols')">Protocols</div>
-              <div class="lib-tab" onclick="switchEditorTab('mentalModels')">Models</div>
-              <div class="lib-tab" onclick="switchEditorTab('productivity')">Productivity</div>
-              <div class="lib-tab" onclick="switchEditorTab('investors')">Investors</div>
-              <div class="lib-tab" onclick="switchEditorTab('quotes')">Quotes</div>
+              <div class="lib-tab active" onclick="switchEditorTab('protocols')">Checkboxes</div>
               <div class="lib-tab" onclick="switchEditorTab('workouts')">Workouts</div>
+              <div class="lib-tab" onclick="switchEditorTab('library')">Library</div>
           </div>
           <div id="editor-content"></div>
           <div class="modal-actions">
@@ -362,18 +280,6 @@ async function loadCloudData() {
     </div>
   </div>
 
-  <!-- SETTINGS/DATA MODAL -->
-  <div class="modal-overlay" id="settings-modal">
-    <div class="modal-content">
-      <div class="modal-header">Data Backup <span style="cursor:pointer" onclick="closeModal('settings-modal')">✕</span></div>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom: 0.5rem;">Copy this text to save your progress.</p>
-      <textarea id="export-area"></textarea>
-      <div class="modal-actions">
-        <button onclick="restoreData()">Restore</button>
-      </div>
-    </div>
-  </div>
-
   <!-- STATS MODAL -->
   <div class="modal-overlay" id="stats-modal">
     <div class="modal-content">
@@ -383,6 +289,18 @@ async function loadCloudData() {
   </div>
 
   <script>
+    // --- SUPABASE CONFIGURATION ---
+    // REPLACE THESE WITH YOUR ACTUAL KEYS
+    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL_HERE'; 
+    const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+
+    // Initialize Supabase
+    let supabase;
+    let currentUser = null;
+    if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL_HERE') {
+        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
     // ==========================================
     // 1. DEFAULT CONFIGURATION
     // ==========================================
@@ -842,7 +760,8 @@ async function loadCloudData() {
     let previousXP = 0;
 
     // --- INITIALIZATION ---
-    function init() {
+    async function init() {
+        // 1. Load Config from LocalStorage or Default
         const savedConfig = localStorage.getItem('komorebi_custom_config');
         if (savedConfig) {
             APP_CONFIG = JSON.parse(savedConfig);
@@ -850,13 +769,89 @@ async function loadCloudData() {
             APP_CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG)); // Deep copy
         }
 
+        // 2. Set Date
         document.getElementById('date-input').value = new Date().toISOString().slice(0, 10);
+        
+        // 3. Render
         renderApp();
         loadDay();
         
-        // Listeners
+        // 4. Listeners
         document.getElementById('date-input').addEventListener('change', loadDay);
+
+        // 5. Check Auth (Cloud Sync)
+        if (supabase) {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('cloud-btn').innerText = "☁️✔";
+                document.getElementById('cloud-btn').title = "Logged In";
+                await loadCloudData();
+                renderApp(); // Re-render with cloud config if found
+            }
+        }
     }
+
+    // --- CLOUD SYNC ---
+    async function cloudSync() {
+        if (!supabase) return alert("Add Supabase URL/KEY to use cloud sync.");
+        
+        if (!currentUser) {
+            const email = prompt("Enter email to sync devices:");
+            if (!email) return;
+            const { error } = await supabase.auth.signInWithOtp({ email });
+            if (error) alert("Error: " + error.message);
+            else alert("Check your email for the magic link!");
+        } else {
+            // Sync
+            await saveToCloud();
+        }
+    }
+
+    async function saveToCloud() {
+        if (!currentUser) return;
+        
+        // Bundle all history + config
+        const history = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('komorebi_')) {
+                history[key] = JSON.parse(localStorage.getItem(key));
+            }
+        }
+
+        const payload = {
+            user_id: currentUser.id,
+            data: { config: APP_CONFIG, history: history },
+            updated_at: new Date()
+        };
+
+        const { error } = await supabase.from('user_data').upsert(payload, { onConflict: 'user_id' });
+        if (error) alert("Sync Failed: " + error.message);
+        else {
+            document.getElementById('cloud-btn').innerText = "☁️✔";
+            alert("Synced to Cloud ✅");
+        }
+    }
+
+    async function loadCloudData() {
+        if (!currentUser) return;
+        const { data, error } = await supabase.from('user_data').select('data').eq('user_id', currentUser.id).single();
+        if (data && data.data) {
+            // Restore Config
+            if (data.data.config) {
+                APP_CONFIG = data.data.config;
+                localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
+            }
+            // Restore History
+            if (data.data.history) {
+                Object.keys(data.data.history).forEach(key => {
+                    localStorage.setItem(key, JSON.stringify(data.data.history[key]));
+                });
+            }
+        }
+    }
+
 
     // --- MAIN RENDERER ---
     function renderApp() {
@@ -913,13 +908,12 @@ async function loadCloudData() {
             html += `</div></section>`;
         });
 
-        // Workout of the Day
         const dateObj = new Date(seed);
         const dayIdx = dateObj.getDay();
         const w = APP_CONFIG.workouts[dayIdx] || { t: "Rest", d: "Recover" };
         html += `
         <section class="section-block">
-            <div class="card workout-card">
+            <div class="card">
               <div class="card-header">
                 <div class="card-title">Workout of the Day</div>
                 <div style="font-size:0.8rem; color:var(--text-muted)">${w.t}</div>
@@ -928,7 +922,6 @@ async function loadCloudData() {
             </div>
         </section>`;
 
-        // Daily Note
         html += `<section class="section-block"><div class="card"><div class="card-header"><div class="card-title">Daily Journal</div></div><textarea id="daily-note-area" placeholder="Wins, lessons, or thoughts..."></textarea></div></section>`;
 
         document.getElementById('app-content').innerHTML = html;
@@ -971,7 +964,6 @@ async function loadCloudData() {
             });
         } else if (currentEditorTab === 'workouts') {
             let html = `<div class="editor-section"><div class="editor-label">Daily Workouts</div>`;
-            if(!APP_CONFIG.workouts) APP_CONFIG.workouts = [];
             APP_CONFIG.workouts.forEach((w, idx) => {
                 html += `<div class="editor-row"><div style="width:80px; font-size:0.8rem;">Day ${idx}</div>
                 <input class="editor-input" value="${w.t}" onchange="updateConfigValue('workouts', '${idx}.t', this.value)">
@@ -979,8 +971,7 @@ async function loadCloudData() {
             });
             container.innerHTML = html + `</div>`;
         } else {
-             // Library Editor
-            const key = currentEditorTab; // mentalModels, productivity, etc.
+            const key = currentEditorTab; 
             let html = `<div class="editor-section"><div class="editor-label">Add New Item</div>
             <div class="editor-row"><input id="new-lib-1" class="editor-input" placeholder="Name / Quote"><input id="new-lib-2" class="editor-input" placeholder="Description / Resource"><button onclick="addToLibrary('${key}')" class="icon-btn">+</button></div></div>`;
             
@@ -1051,13 +1042,14 @@ async function loadCloudData() {
     }
     function saveCustomConfig() {
         localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
+        saveToCloud(); // Sync to cloud on save
         closeModal('editor-modal'); renderApp(); updateVisuals(); alert("Configuration Saved!");
     }
     function factoryReset() {
         if(confirm("Reset to defaults?")) { localStorage.removeItem('komorebi_custom_config'); location.reload(); }
     }
 
-    // --- CALCULATIONS ---
+    // --- VISUALS & ANIMATION ---
     function updateVisuals() {
         const state = readState();
         let totalXP = 0;
@@ -1093,7 +1085,7 @@ async function loadCloudData() {
         rating.className = `badge ${cls}`; rating.innerText = label;
     }
 
-    // --- LIBRARY ---
+    // --- LIBRARY RENDER ---
     function renderLibrary() {
         const filter = document.getElementById('lib-search').value.toLowerCase();
         let data = APP_CONFIG.library[currentLibTab] || [];
@@ -1111,10 +1103,11 @@ async function loadCloudData() {
     function readState() { const s = {}; document.querySelectorAll('input[type="checkbox"]').forEach(cb => s[cb.dataset.key] = cb.checked); return s; }
     function writeState(s) { document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = !!s[cb.dataset.key]); document.getElementById('daily-note-area').value = s.note || ""; }
     function getFormatKey() { return `komorebi_${document.getElementById('date-input').value}`; }
-    function saveDay() { const s = readState(); s.note = document.getElementById('daily-note-area').value; localStorage.setItem(getFormatKey(), JSON.stringify(s)); alert("Saved."); }
+    function saveDay() { const s = readState(); s.note = document.getElementById('daily-note-area').value; localStorage.setItem(getFormatKey(), JSON.stringify(s)); saveToCloud(); }
     function loadDay() { renderApp(); const raw = localStorage.getItem(getFormatKey()); if(raw) writeState(JSON.parse(raw)); updateVisuals(); }
     function resetDay() { writeState({}); updateVisuals(); }
     function showFloatingXP(e) { const div = document.createElement('div'); div.className = 'floating-xp'; div.innerText = `+${e.target.dataset.xp} XP`; div.style.left = e.clientX + 'px'; div.style.top = e.clientY + 'px'; document.body.appendChild(div); setTimeout(() => div.remove(), 1000); }
+    function fireConfetti() { /* Animation */ }
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function getRandom(arr, seed) { let hash = 0; for(let i=0; i<seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i); return arr[Math.abs(hash) % arr.length]; }
