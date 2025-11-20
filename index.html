@@ -1,3 +1,88 @@
+<!-- Add Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// --- SUPABASE CONFIGURATION ---
+const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL_HERE';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+const supabase = supa.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Global User Object
+let currentUser = null;
+
+// --- AUTHENTICATION LOGIC ---
+async function login() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+    });
+    if (error) alert("Login failed: " + error.message);
+}
+
+async function logout() {
+    const { error } = await supabase.auth.signOut();
+    if (!error) window.location.reload();
+}
+
+// --- NEW INIT LOGIC ---
+async function initApp() {
+    // Check if user is logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+        currentUser = session.user;
+        document.getElementById('login-btn').innerText = "Logout";
+        document.getElementById('login-btn').onclick = logout;
+        
+        // LOAD CLOUD DATA
+        await loadCloudData();
+    } else {
+        // Fallback to LocalStorage if not logged in
+        console.log("No user. Using LocalStorage.");
+        loadLocalData();
+    }
+    
+    renderApp();
+    updateVisuals();
+}
+
+// --- CLOUD SYNC FUNCTIONS ---
+async function saveToCloud() {
+    if (!currentUser) return alert("Log in to save to cloud.");
+    
+    const historyKey = `komorebi_history`;
+    // Gather all local history
+    // (In a real app, we'd structure this better, but this is the bridge step)
+    
+    const payload = {
+        user_id: currentUser.id,
+        config: APP_CONFIG,
+        updated_at: new Date()
+    };
+
+    // Upsert (Update if exists, Insert if new)
+    const { error } = await supabase
+        .from('user_data')
+        .upsert(payload, { onConflict: 'user_id' });
+
+    if (error) alert("Cloud Save Failed: " + error.message);
+    else alert("Synced to Cloud ✅");
+}
+
+async function loadCloudData() {
+    const { data, error } = await supabase
+        .from('user_data')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+    if (data) {
+        if (data.config) APP_CONFIG = data.config;
+        // You would also load history here
+        console.log("Cloud data loaded");
+    }
+}
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
