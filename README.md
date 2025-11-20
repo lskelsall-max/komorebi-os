@@ -1,6 +1,6 @@
 # Komorebi OS 🌿 — Master Protocol
 
-**A complete Operating System for Mind, Body, and Legacy.**
+**A complete Operating System for Mind, Body, Career and Legacy.**
 
 Komorebi OS is a gamified personal dashboard designed to align daily actions with long-term mastery. It combines habit tracking, gamification (XP system), and a "Second Brain" knowledge retrieval system into a single, lightning-fast web application.
 
@@ -12,13 +12,14 @@ Komorebi OS is a gamified personal dashboard designed to align daily actions wit
 
 ### 1. Daily Protocol & Gamification
 - **XP System:** Earn XP for completing habits across Health, Mindset, Wisdom and Mastery.
+- **Fully Customisable:** Configure habits, add key details and adjust the scoring to trigger at different thresholds.  
 - **Day Ratings:** Real-time feedback (Red Zone ➝ Survival ➝ Strong ➝ Elite).
 - **Streaks:** Visual tracking of consistency.
 
-### 2. "Ask the Jaguar Warrior King" (AI Brain)
+### 2. "Ask the Komorebi OS Brain" (AI Brain)
 - **Vector Search:** A search bar connected to a Supabase Vector Store.
 - **Knowledge Retrieval:** Instantly pulls insights from your uploaded PDFs (Superinvestor letters, health protocols, self-help and other productivity hacks, Mental Models and any other personalised notes).
-- **Local Library:** Simultaneously searches your manual entries (Quotes, Principles).
+- **Local Library:** Simultaneously searches your manual entries (Quotes, Protocols etc.).
 
 ### 3. Investor of the Week
 - **Weekly Rotation:** Automatically highlights a specific Superinvestor (e.g., Buffett, Druckenmiller) every Monday.
