@@ -1,93 +1,96 @@
-# Komorebi OS — Master Protocol
+# Komorebi OS 🌿 — Master Protocol
 
-A personal operating system for **Health, Wealth, and Wisdom**.
+**A complete Operating System for Mind, Body, and Legacy.**
 
-Komorebi OS is a single-page, gamified daily protocol tracker and knowledge hub. It helps you align each day around your core habits while cycling through a curated library of mental models, productivity ideas, and investing wisdom.
+Komorebi OS is a gamified personal dashboard designed to align daily actions with long-term mastery. It combines habit tracking, gamification (XP system), and a "Second Brain" knowledge retrieval system into a single, lightning-fast web application.
 
----
-
-## 🔗 Open the App
-
-If you’re hosting via GitHub Pages, your app URL will look like:
-
-`https://YOUR_GITHUB_USERNAME.github.io/komorebi-os/`
-
-Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username and open the link in your browser.
+🔗 **[LIVE APP LINK](https://arete.leekelsall.com/)**
 
 ---
 
-## 🎯 What Komorebi OS Does
+## 🎯 Key Features
 
-- **Daily Alignment Engine**  
-  Each day, the app rotates through a curated set of:
-  - 300+ **Mental Models**
-  - **Productivity / Execution Hacks**
-  - **Philosophical Quotes**  
+### 1. Daily Protocol & Gamification
+- **XP System:** Earn XP for completing habits across Health, Mind, and Mastery.
+- **Day Ratings:** Real-time feedback (Red Zone ➝ Survival ➝ Strong ➝ Elite).
+- **Streaks:** Visual tracking of consistency.
 
-  You get a fresh, pre-selected “stack” to reflect on and act against.
+### 2. "Ask the Jaguar" (AI Brain)
+- **Vector Search:** A search bar connected to a Supabase Vector Store.
+- **Knowledge Retrieval:** Instantly pulls insights from your uploaded PDFs (Investor letters, Huberman protocols, Mental Models).
+- **Local Library:** Simultaneously searches your manual entries (Quotes, Principles).
 
-- **Investor of the Week**  
-  A weekly, rotating **Superinvestor focus** (e.g. Buffett, Druckenmiller).  
-  Each investor comes with a core study pack: letters, books, talks, and key ideas.
+### 3. Investor of the Week
+- **Weekly Rotation:** Automatically highlights a specific Superinvestor (e.g., Buffett, Druckenmiller) every Monday.
+- **Deep Dive:** Displays their track record and the specific resource/letter to study for that week.
 
-- **Gamified Protocol Tracking (XP System)**  
-  Complete daily protocols and earn XP across three domains:
-  - **Health** – Supplements, workouts, recovery, aesthetics  
-  - **Mind** – Meditation, slow thinking, gratitude, stillness  
-  - **Mastery** – Deep work, second brain, ultralearning, long-form study  
+### 4. Built-in CMS (No Coding Required)
+- **Visual Editor (✏️):** Add, edit, delete, or reorder Checkboxes, Workouts, and Library items directly in the browser.
+- **Workouts:** Customize your daily fitness rotation.
+- **Library:** Manage your collection of Mental Models and Quotes.
 
-  The scoring rules and categories are fully configurable.
-
-- **Knowledge Library**  
-  A searchable library containing:
-  - Mental models
-  - Quotes and prompts
-  - Book and resource summaries  
-  All mapped back to the daily protocol system, so reading and action stay connected.
-
-- **Privacy-First by Design**  
-  - No accounts, no backend, no tracking
-  - All data is stored **locally in your browser** via `localStorage`
-  - Clear/reset options are built-in
+### 5. Cloud Sync & Privacy
+- **Supabase Backend:** Data is synced across devices (Desktop ↔ iPhone).
+- **Google Auth:** One-click secure login.
+- **Local-First:** Works offline and syncs when the connection is restored.
 
 ---
 
-## 🧠 Architecture Overview
+## 🛠️ Setup Guide
 
-Komorebi OS is intentionally simple:
+This app runs as a single `index.html` file hosted on GitHub Pages, connected to a free Supabase backend.
 
-- **Frontend Only**  
-  - Plain HTML/CSS/JS (no build step required)
-  - All logic lives in `index.html` and supporting JS files
+### 1. Hosting
+1. Upload `index.html` to a GitHub repository.
+2. Go to **Settings > Pages**.
+3. Set **Source** to `main` branch and save.
 
-- **Headless Content Layer**  
-  - All **content, configuration, and scoring rules** live in a single file: `komorebi-data.js`
-  - Think of it as a lightweight, file-based CMS:
-    - Mental models
-    - Quotes
-    - Daily protocol definitions
-    - XP values and category weights
-    - Investor-of-the-week rotation
+### 2. Backend (Supabase)
+1. Create a project at [Supabase.com](https://supabase.com).
+2. Go to **SQL Editor** and run the following to set up the database:
 
-Updating the app rarely requires changing UI logic—just update the data file.
+```sql
+-- Enable Vector Search
+create extension if not exists vector;
 
----
+-- Create User Data Table (Config + History)
+create table user_data (
+  user_id uuid primary key references auth.users not null,
+  config jsonb,
+  history jsonb,
+  updated_at timestamptz default now()
+);
 
-## ⚙️ Customising the Content (Lightweight CMS)
+-- Create Documents Table (PDF Knowledge Base)
+create table documents (
+  id bigserial primary key,
+  content text,
+  metadata jsonb,
+  embedding vector(1536)
+);
 
-Most changes happen in **one file**: `komorebi-data.js`.
+-- Enable Search Function
+create or replace function search_documents (
+  query_text text,
+  match_count int
+)
+returns table (
+  id bigint,
+  content text,
+  metadata jsonb
+)
+language plpgsql
+as $$
+begin
+  return query
+  select id, content, metadata
+  from documents
+  where content ilike '%' || query_text || '%'
+  limit match_count;
+end;
+$$;
 
-### 1. Add a New Mental Model or Quote
-
-1. Open `komorebi-data.js`.
-2. Find the relevant library section (e.g. mental models, quotes, productivity, etc.).
-3. Add a new object following the existing structure, for example:
-
-   ```js
-   {
-     id: "inversion",
-     type: "mentalModel",
-     title: "Inversion",
-     summary: "Think about what you want to avoid or prevent, then solve from there.",
-     source: "Charlie Munger",
-   }
+-- Set Security Policies (RLS)
+alter table user_data enable row level security;
+create policy "Users manage their own data" on user_data
+  for all using (auth.uid() = user_id);
