@@ -45,136 +45,46 @@
       padding-bottom: 40px;
     }
 
-    /* CONFETTI FIX: REMOVE FROM FLOW */
+    /* CONFETTI FIX */
     #confetti-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
     }
 
-    /* CONTAINER FIX: FLUSH TOP */
+    /* CONTAINER */
     .container { 
-        max-width: 1200px; 
-        margin: 0 auto; 
-        padding-left: 0.8rem;
-        padding-right: 0.8rem;
-        padding-top: 0; /* Flush on desktop */
-        position: relative;
-        z-index: 1;
+        max-width: 1200px; margin: 0 auto; 
+        padding-left: 0.8rem; padding-right: 0.8rem; padding-top: 0; 
+        position: relative; z-index: 1;
     }
 
-    /* MOBILE NOTCH SUPPORT */
-    @media (max-width: 768px) {
-      .container {
-        padding-top: env(safe-area-inset-top);
-      }
-    }
+    @media (max-width: 768px) { .container { padding-top: env(safe-area-inset-top); } }
 
     /* HEADER */
     .app-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: flex-start; 
-      padding-top: 0.5rem; /* Minimal padding */
-      padding-bottom: 1rem; 
-      margin-bottom: 0;
+      display: flex; justify-content: space-between; align-items: flex-start; 
+      padding-top: 0.5rem; padding-bottom: 1rem; margin-bottom: 0;
     }
-
-    .app-title-block { display: flex; flex-direction: column; }
-    
-    .app-title { 
-      font-size: 1.6rem; 
-      font-weight: 900; 
-      text-transform: uppercase; 
-      letter-spacing: -0.02em;
-      line-height: 1;
-      margin-bottom: 2px;
-      color: #050f0a; 
-      text-shadow: none;
-    }
-    
-    .app-subtitle { 
-      font-size: 0.75rem; 
-      color: #1f352a; 
-      font-weight: 700;
-      opacity: 0.9; 
-    }
-
-    .header-controls { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: flex-end; 
-      gap: 0.3rem; 
-    }
-
-    #date-input { 
-      background: rgba(0, 0, 0, 0.1); 
-      border: 1px solid rgba(0,0,0,0.1); 
-      border-radius: 6px; 
-      padding: 0.2rem 0.5rem; 
-      color: #050f0a; 
-      font-weight: 600;
-      font-family: inherit; 
-      font-size: 0.85rem;
-      text-align: right;
-    }
-
-    .xp-pill { 
-      font-size: 0.9rem; 
-      color: #050f0a; 
-      font-weight: 800; 
-    }
+    .app-title { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1; margin-bottom: 2px; color: #050f0a; text-shadow: none; }
+    .app-subtitle { font-size: 0.75rem; color: #1f352a; font-weight: 700; opacity: 0.9; }
+    .header-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
+    #date-input { background: rgba(0, 0, 0, 0.1); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 0.2rem 0.5rem; color: #050f0a; font-weight: 600; font-family: inherit; font-size: 0.85rem; text-align: right; }
+    .xp-pill { font-size: 0.9rem; color: #050f0a; font-weight: 800; }
 
     /* JAGUAR SEARCH */
-    .jaguar-search-container {
-        margin-bottom: 1rem;
-        position: relative;
-    }
-    .jaguar-input {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.2);
-        background: rgba(14, 32, 22, 0.6);
-        color: #fff;
-        font-size: 0.95rem;
-        backdrop-filter: blur(5px);
-        transition: all 0.2s;
-    }
-    .jaguar-input:focus {
-        outline: none;
-        border-color: var(--accent-gold);
-        background: rgba(14, 32, 22, 0.9);
-        box-shadow: 0 0 15px rgba(245, 193, 92, 0.2);
-    }
+    .jaguar-search-container { margin-bottom: 1rem; position: relative; }
+    .jaguar-input { width: 100%; padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(14, 32, 22, 0.6); color: #fff; font-size: 0.95rem; backdrop-filter: blur(5px); transition: all 0.2s; }
+    .jaguar-input:focus { outline: none; border-color: var(--accent-gold); background: rgba(14, 32, 22, 0.9); box-shadow: 0 0 15px rgba(245, 193, 92, 0.2); }
     .jaguar-input::placeholder { color: rgba(255,255,255,0.5); font-style: italic; }
     
     /* SUMMARY BAR */
-    .summary-bar {
-      background: rgba(6, 19, 13, 0.8); 
-      border-radius: 12px; 
-      padding: 0.5rem 0.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.1); 
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem; 
-      backdrop-filter: blur(12px);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-    }
-
+    .summary-bar { background: rgba(6, 19, 13, 0.8); border-radius: 12px; padding: 0.5rem 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
     .summary-left { display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem; }
     #total-xp { font-weight: 600; color: var(--text-main); }
-    
     .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .elite { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
     .strong { background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
     .survival { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
     .red { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-    
     .summary-actions { display: flex; gap: 0.4rem; }
     
     button { background: var(--accent-gold); color: #0e2016; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
@@ -184,7 +94,6 @@
     button.icon-btn { padding: 0.4rem 0.6rem; min-width: 36px; }
     button.danger { background: rgba(249, 115, 115, 0.15); color: var(--danger); border: 1px solid var(--danger); }
     button.add-btn { width: 100%; margin-top: 0.5rem; background: rgba(255,255,255,0.05); color: var(--komorebi-mint); border: 1px dashed var(--border-subtle); padding: 0.6rem; font-size: 0.8rem; }
-    button.tiny-btn { padding: 0.2rem 0.4rem; font-size: 0.7rem; margin-left: 2px; background: rgba(255,255,255,0.1); color: #fff;}
 
     /* SECTIONS & CARDS */
     .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.4); margin: 0 0 0.4rem 0.2rem; font-weight: 600; }
@@ -213,7 +122,7 @@
     details.details-list summary::before { content: "▸"; display: inline-block; margin-right: 0.3rem; font-size: 0.7rem; }
     details.details-list[open] summary::before { content: "▾"; }
     .sub-list { margin: 0.3rem 0 0; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle); }
-    .sub-list li { list-style: none; margin-bottom: 0.2rem; }
+    .sub-list li { list-style: none; margin-bottom: 0.2rem; line-height: 1.4; }
 
     .prompt-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
     .prompt-body b { color: #fff; display:block; margin-bottom:0.2rem; }
@@ -653,23 +562,11 @@
             quotes: [
                 "“Discipline equals freedom.” — Jocko Willink",
                 "“The impediment to action advances action.” — Marcus Aurelius",
-                "“You do not rise to the level of your goals. You fall to the level of your systems.” — James Clear",
                 "“The score takes care of itself.” — Bill Walsh",
                 "“He who has a why to live can bear almost any how.” — Nietzsche",
-                "“Be the person with embarrassing goals and impressive results.” — Stephen Guise",
                 "“Action isn't just the effect of motivation; it's also the cause of it.” — Mark Manson",
-                "“Give me a lever long enough and a fulcrum on which to place it, and I shall move the world.” — Archimedes",
-                "“What you do is what matters, not what you think or say or plan.” — Jason Fried",
-                "“It is the quality of time at work that counts and the quantity of time at home that matters.” — Brian Tracy",
-                "“I am the master of my fate, I am the captain of my soul.” — Invictus",
-                "“We suffer more in imagination than in reality.” — Seneca",
-                "“If you want to go fast, go alone. If you want to go far, go together.” — African Proverb",
-                "“It is not the critic who counts... The credit belongs to the man who is actually in the arena.” — Theodore Roosevelt",
-                "“Everything in life is a mind game!” — David Goggins",
                 "“Slow is smooth, smooth is fast.” — Navy SEALs",
                 "“Invert, always invert.” — Jacobi",
-                "“I want to be able to look back and say, ‘I didn’t solve everything, but I didn’t create any new problems.’” — Naval Ravikant",
-                "“Spend each day trying to be a little wiser than you were when you woke up.” — Charlie Munger",
                 "“To get what you want, you have to deserve what you want.” — Charlie Munger",
                 "“Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it.” — Einstein",
                 "“I never allow myself to hold an opinion on anything that I don't know the other side's argument better than they do.” — Charlie Munger",
@@ -693,6 +590,143 @@
                 "“If I change, the world will change, no-one else will change the world for me.” — Unknown"
             ]
         },
+        protocols: [
+            {
+                id: "health",
+                title: "Health",
+                columns: 3,
+                cards: [
+                    {
+                        id: "supplements",
+                        title: "Nutrition",
+                        maxXP: 500,
+                        scoringType: "count_multiplier",
+                        perItemXP: 166,
+                        items: [ 
+                            { id: "electrolytes", label: "Electrolytes Mix" },
+                            { id: "supplements", label: "Morning Supplements" },
+                            { id: "smoothie", label: "Supersmoothie" }
+                        ],
+                        details: [
+                            "Ingredients: Electrolytes, Alpha GPC, Omega 3, Flexi-Calcium, Joint Complex",
+                            "Smoothie: Clean Protein 35g, Creatine 5g, Greens powder, Berries, Turmeric/Ginger"
+                        ]
+                    },
+                    {
+                        id: "mindset",
+                        title: "Mindset",
+                        maxXP: 500,
+                        scoringType: "count_multiplier",
+                        perItemXP: 166,
+                        items: [ 
+                            { id: "meditate", label: "Meditation" },
+                            { id: "gratitude", label: "Gratitude" },
+                            { id: "journal", label: "Daily Journalling" }
+                        ],
+                        details: [
+                            "Daily Questions:",
+                            "1. What is the single most important thing today?",
+                            "2. What will stretch me beyond comfort?",
+                            "3. How will I lead by example for my children?",
+                            "4. How will I honour Virtue today? — Peak: Excellence in Character (Aretê, De, Virtus)"
+                        ]
+                    },
+                    {
+                        id: "fitness",
+                        title: "Fitness & Recovery",
+                        maxXP: 1000,
+                        scoringType: "count_multiplier", 
+                        perItemXP: 334,
+                        items: [
+                            { id: "sunshine", label: "Sunshine" },
+                            { id: "rollerYoga", label: "Roller / Yoga" },
+                            { id: "protein120", label: "Protein ≥ 120g" },
+                            { id: "exercise", label: "Exercise" },
+                            { id: "cold", label: "Cold / sauna" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "mind",
+                title: "Wisdom & Arete",
+                columns: 3,
+                cards: [
+                    {
+                        id: "wisdom",
+                        title: "Wisdom & Clarity",
+                        maxXP: 1000,
+                        scoringType: "count_multiplier",
+                        perItemXP: 334,
+                        items: [
+                            { id: "mentalModel", label: "Mental model" },
+                            { id: "productivityGame", label: "Productivity game" },
+                            { id: "philosophy", label: "Philosophy" }
+                        ]
+                    },
+                    {
+                        id: "arete",
+                        title: "Joy as GPS",
+                        maxXP: 1000,
+                        scoringType: "count_multiplier",
+                        perItemXP: 500,
+                        items: [
+                            { id: "familyTime", label: "Family time" },
+                            { id: "golf", label: "Golf / Skill" },
+                            { id: "fiction", label: "Read fiction" },
+                            { id: "lunchDinner", label: "Lunch or dinner out" },
+                            { id: "contribution", label: "Contribution" }
+                        ]
+                    },
+                    {
+                        id: "values",
+                        title: "Values",
+                        maxXP: 1000,
+                        scoringType: "count_multiplier",
+                        perItemXP: 334,
+                        items: [
+                            { id: "valueCourage", label: "Courage" },
+                            { id: "valueAdventure", label: "Adventure" },
+                            { id: "valueSelfImprovement", label: "Self-improvement" },
+                            { id: "valueIntegrity", label: "Integrity" },
+                            { id: "valueDiscipline", label: "Discipline" },
+                            { id: "valueKindness", label: "Kindness" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "craft",
+                title: "Craft & Duty",
+                columns: 2,
+                cards: [
+                    {
+                        id: "mastery",
+                        title: "Mastery",
+                        maxXP: 2000,
+                        scoringType: "count_multiplier",
+                        perItemXP: 666,
+                        items: [
+                            { id: "investingReading", label: "Investing reading list" },
+                            { id: "researchMemo", label: "Research memo" },
+                            { id: "investorInteraction", label: "Investor interaction" }
+                        ]
+                    },
+                    {
+                        id: "responsibility",
+                        title: "Responsibility",
+                        maxXP: 2000,
+                        scoringType: "count_multiplier",
+                        perItemXP: 666,
+                        items: [
+                            { id: "earnIncome", label: "Earn income" },
+                            { id: "completeTaxes", label: "Complete taxes / admin" },
+                            { id: "hectorBellaEducation", label: "Hector & Bella education" }
+                        ]
+                    }
+                ]
+            }
+        ],
         workouts: [
             { t: "Sunday", d: "Endurance/Cardio (Swim, Hike, Long Zone 2)" },
             { t: "Monday", d: "Lower Body Strength (Squat/Deadlift, Posterior Chain)" },
@@ -709,6 +743,7 @@
     let currentLibTab = 'mentalModels';
     let currentEditorTab = 'protocols';
     let currentUser = null;
+    let previousXP = 0;
 
     // --- INITIALIZATION ---
     async function init() {
@@ -734,8 +769,8 @@
             currentUser = data.session.user;
             document.getElementById('cloud-btn').innerText = "☁️✔";
             document.getElementById('cloud-btn').title = "Logged In";
-            await loadCloudData(); // Load config on login
-            renderApp(); // Re-render with cloud config if found
+            await loadCloudData();
+            renderApp();
         }
     }
 
@@ -744,7 +779,6 @@
         if (!supabaseClient) return alert("Supabase not initialized.");
         
         if (!currentUser) {
-            // Google Login
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: { redirectTo: window.location.href }
@@ -757,8 +791,6 @@
 
     async function saveToCloud() {
         if (!currentUser) return;
-        
-        // Separate Config and History
         const history = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -766,20 +798,14 @@
                 history[key] = JSON.parse(localStorage.getItem(key));
             }
         }
-
         const payload = {
             user_id: currentUser.id,
-            config: APP_CONFIG,     // Separate column
-            history: history,       // Separate column
+            data: { config: APP_CONFIG, history: history },
             updated_at: new Date()
         };
-
         const { error } = await supabaseClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
-        
-        if (error) {
-            console.error("Sync Failed:", error);
-            alert("Sync Failed: " + error.message);
-        } else {
+        if (error) alert("Sync Failed: " + error.message);
+        else {
             document.getElementById('cloud-btn').innerText = "☁️✔";
             alert("Synced to Cloud ✅");
         }
@@ -787,18 +813,15 @@
 
     async function loadCloudData() {
         if (!currentUser) return;
-        const { data, error } = await supabaseClient.from('user_data').select('config, history').eq('user_id', currentUser.id).single();
-        
-        if (data) {
-            // Restore Config
-            if (data.config) {
-                APP_CONFIG = data.config;
+        const { data, error } = await supabaseClient.from('user_data').select('data').eq('user_id', currentUser.id).single();
+        if (data && data.data) {
+            if (data.data.config) {
+                APP_CONFIG = data.data.config;
                 localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
             }
-            // Restore History
-            if (data.history) {
-                Object.keys(data.history).forEach(key => {
-                    localStorage.setItem(key, JSON.stringify(data.history[key]));
+            if (data.data.history) {
+                Object.keys(data.data.history).forEach(key => {
+                    localStorage.setItem(key, JSON.stringify(data.data.history[key]));
                 });
             }
         }
@@ -810,10 +833,7 @@
             const query = document.getElementById('jaguar-input').value;
             if (!query) return;
             
-            // 1. Search Local Library (Immediate Results)
             const localResults = searchLocalLibrary(query);
-            
-            // 2. Search Vector DB (If Available)
             let vectorResults = [];
             if (supabaseClient) {
                  const { data, error } = await supabaseClient.rpc('search_documents', {
@@ -830,8 +850,6 @@
     function searchLocalLibrary(query) {
         const results = [];
         const q = query.toLowerCase();
-        
-        // Search all library categories
         Object.values(APP_CONFIG.library).flat().forEach(item => {
             const text = (item.name || item) + " " + (item.desc || item.resource || "");
             if (text.toLowerCase().includes(q)) results.push(item);
@@ -841,7 +859,6 @@
 
     function displayAnswer(query, local, vector) {
         let html = `<b>Query:</b> ${query}<br><br>`;
-        
         if (local.length > 0) {
             html += `<b>From Your Library:</b><br>`;
             local.forEach(item => {
@@ -849,7 +866,6 @@
             });
             html += `<br>`;
         }
-        
         if (vector.length > 0) {
             html += `<b>From The Brain (PDFs):</b><br>`;
             vector.forEach(item => {
@@ -858,16 +874,13 @@
         } else if (vector.length === 0 && local.length === 0) {
             html += "No matches found in Library or Brain.";
         }
-
         document.getElementById('answer-content').innerHTML = html;
         openModal('answer-modal');
     }
 
-
     // --- MAIN RENDERER ---
     function renderApp() {
         const seed = document.getElementById('date-input').value;
-        
         const model = getRandom(APP_CONFIG.library.mentalModels, seed + 'm');
         const prod = getRandom(APP_CONFIG.library.productivity, seed + 'p');
         const quote = getRandom(APP_CONFIG.library.quotes, seed + 'q');
@@ -912,7 +925,6 @@
                     card.details.forEach(d => html += `<li>${d}</li>`);
                     html += `</ul></details>`;
                 }
-
                 html += `</div></div>`;
             });
             html += `</div></section>`;
@@ -974,7 +986,6 @@
             });
         } else if (currentEditorTab === 'workouts') {
             let html = `<div class="editor-section"><div class="editor-label">Daily Workouts</div>`;
-            if(!APP_CONFIG.workouts) APP_CONFIG.workouts = [];
             APP_CONFIG.workouts.forEach((w, idx) => {
                 html += `<div class="editor-row"><div style="width:80px; font-size:0.8rem;">Day ${idx}</div>
                 <input class="editor-input" value="${w.t}" onchange="updateConfigValue('workouts', '${idx}.t', this.value)">
