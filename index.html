@@ -32,9 +32,8 @@
       --success: #4ade80;
     }
 
-    /* RESET & BASE */
+    /* CSS RESET */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    
     html, body { width: 100%; height: 100%; overflow-x: hidden; }
 
     body {
@@ -70,7 +69,8 @@
     .jaguar-search-container { margin-bottom: 1rem; position: relative; }
     .jaguar-input { width: 100%; padding: 0.8rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(14, 32, 22, 0.6); color: #fff; font-size: 0.95rem; backdrop-filter: blur(5px); transition: all 0.2s; }
     .jaguar-input:focus { outline: none; border-color: var(--accent-gold); background: rgba(14, 32, 22, 0.9); box-shadow: 0 0 15px rgba(245, 193, 92, 0.2); }
-    
+    .jaguar-input::placeholder { color: rgba(255,255,255,0.5); font-style: italic; }
+
     /* SUMMARY BAR */
     .summary-bar { background: rgba(6, 19, 13, 0.8); border-radius: 12px; padding: 0.5rem 0.8rem; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
     .summary-left { display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem; }
@@ -91,7 +91,7 @@
     button.add-btn { width: 100%; margin-top: 0.5rem; background: rgba(255,255,255,0.05); color: var(--komorebi-mint); border: 1px dashed var(--border-subtle); padding: 0.6rem; font-size: 0.8rem; }
     button.tiny-btn { padding: 0.2rem 0.4rem; font-size: 0.7rem; margin-left: 2px; background: rgba(255,255,255,0.1); color: #fff;}
 
-    /* CARDS */
+    /* SECTIONS & CARDS */
     .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.4); margin: 0 0 0.4rem 0.2rem; font-weight: 600; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1.2rem; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.2rem; }
@@ -118,7 +118,7 @@
     details.details-list summary::before { content: "▸"; display: inline-block; margin-right: 0.3rem; font-size: 0.7rem; }
     details.details-list[open] summary::before { content: "▾"; }
     .sub-list { margin: 0.3rem 0 0; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle); }
-    .sub-list li { list-style: none; margin-bottom: 0.2rem; line-height: 1.4; }
+    .sub-list li { list-style: none; margin-bottom: 0.2rem; }
 
     .prompt-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
     .prompt-body b { color: #fff; display:block; margin-bottom:0.2rem; }
@@ -212,7 +212,7 @@
           <div class="modal-header">
               Customize 
               <div>
-                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset</button>
+                  <button onclick="factoryReset()" class="danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right:10px;">Reset All</button>
                   <span style="cursor:pointer" onclick="closeModal('editor-modal')">✕</span>
               </div>
           </div>
@@ -565,10 +565,8 @@
             quotes: [
                 "“Discipline equals freedom.” — Jocko Willink",
                 "“The impediment to action advances action.” — Marcus Aurelius",
-                "“You do not rise to the level of your goals. You fall to the level of your systems.” — James Clear",
                 "“The score takes care of itself.” — Bill Walsh",
                 "“He who has a why to live can bear almost any how.” — Nietzsche",
-                "“Be the person with embarrassing goals and impressive results.” — Stephen Guise",
                 "“Action isn't just the effect of motivation; it's also the cause of it.” — Mark Manson",
                 "“Give me a lever long enough and a fulcrum on which to place it, and I shall move the world.” — Archimedes",
                 "“What you do is what matters, not what you think or say or plan.” — Jason Fried",
@@ -616,46 +614,67 @@
         ]
     };
 
+    // --- GLOBAL STATE ---
     let APP_CONFIG = {};
-    let currentUser = null;
     let currentLibTab = 'mentalModels';
     let currentEditorTab = 'protocols';
+    let currentUser = null;
+    let previousXP = 0;
     let userOpenAIKey = localStorage.getItem('komorebi_openai_key') || '';
 
-    // INIT
+    // --- INITIALIZATION ---
     async function init() {
+        // 1. Load Config
         const savedConfig = localStorage.getItem('komorebi_custom_config');
-        APP_CONFIG = savedConfig ? JSON.parse(savedConfig) : JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        
+        if (savedConfig) {
+            APP_CONFIG = JSON.parse(savedConfig);
+            // SELF-HEALING: If config looks empty, force reset
+            if(!APP_CONFIG.protocols || APP_CONFIG.protocols.length === 0) APP_CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        } else {
+            APP_CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        }
+
+        // 2. Setup
         document.getElementById('date-input').value = new Date().toISOString().slice(0, 10);
         document.getElementById('openai-key-input').value = userOpenAIKey;
-        
         renderApp();
         loadDay();
         
-        if (supabaseClient) checkUser();
-        
+        // 3. Listeners
         document.getElementById('date-input').addEventListener('change', loadDay);
-    }
 
+        // 4. Check Auth
+        if (supabaseClient) checkUser();
+    }
+    
     async function checkUser() {
         const { data } = await supabaseClient.auth.getSession();
         if (data.session) {
             currentUser = data.session.user;
             document.getElementById('cloud-btn').innerText = "☁️✔";
-            await loadCloudData();
+            document.getElementById('cloud-btn').title = "Logged In";
+            await loadCloudData(); 
             renderApp();
         }
     }
 
-    // CLOUD
+    // --- CLOUD SYNC ---
     async function cloudSync() {
+        if (!supabaseClient) return alert("Supabase not initialized.");
+        
         if (!currentUser) {
-            const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
-            if (error) alert(error.message);
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.href }
+            });
+            if (error) alert("Login Error: " + error.message);
         } else {
-            if(confirm("Log out?")) { await supabaseClient.auth.signOut(); window.location.reload(); }
-            else saveToCloud();
+            if(confirm("Do you want to LOGOUT? (Click Cancel to just Sync)")) {
+                await supabaseClient.auth.signOut();
+                window.location.reload();
+            } else {
+                await saveToCloud();
+            }
         }
     }
 
@@ -664,29 +683,41 @@
         const history = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key.startsWith('komorebi_')) history[key] = JSON.parse(localStorage.getItem(key));
+            if (key.startsWith('komorebi_')) {
+                history[key] = JSON.parse(localStorage.getItem(key));
+            }
         }
-        // FIX: Explicitly map fields to match table columns (config, history)
-        const { error } = await supabaseClient.from('user_data').upsert({
+        const payload = {
             user_id: currentUser.id,
             config: APP_CONFIG,
             history: history,
             updated_at: new Date()
-        }, { onConflict: 'user_id' });
-        
+        };
+        const { error } = await supabaseClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
         if (error) alert("Sync Failed: " + error.message);
-        else { document.getElementById('cloud-btn').innerText = "☁️✔"; alert("Synced!"); }
-    }
-
-    async function loadCloudData() {
-        const { data } = await supabaseClient.from('user_data').select('config, history').eq('user_id', currentUser.id).single();
-        if (data) {
-            if (data.config) { APP_CONFIG = data.config; localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG)); }
-            if (data.history) { Object.keys(data.history).forEach(k => localStorage.setItem(k, JSON.stringify(data.history[k]))); }
+        else {
+            document.getElementById('cloud-btn').innerText = "☁️✔";
+            alert("Synced to Cloud ✅");
         }
     }
 
-    // AI SEARCH
+    async function loadCloudData() {
+        if (!currentUser) return;
+        const { data, error } = await supabaseClient.from('user_data').select('config, history').eq('user_id', currentUser.id).single();
+        if (data) {
+            if (data.config) {
+                APP_CONFIG = data.config;
+                localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
+            }
+            if (data.history) {
+                Object.keys(data.history).forEach(key => {
+                    localStorage.setItem(key, JSON.stringify(data.history[key]));
+                });
+            }
+        }
+    }
+    
+    // --- AI SEARCH ---
     function saveOpenAIKey() {
         const key = document.getElementById('openai-key-input').value;
         localStorage.setItem('komorebi_openai_key', key);
@@ -703,11 +734,11 @@
             let vector = [];
             
             if (userOpenAIKey) {
-                document.getElementById('answer-content').innerHTML = "Searching Brain...";
+                document.getElementById('answer-content').innerHTML = "Searching Brain... (This might take a few seconds)";
                 openModal('answer-modal');
                 
-                // Get Embedding from OpenAI
                 try {
+                    // Get Embedding
                     const resp = await fetch('https://api.openai.com/v1/embeddings', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${userOpenAIKey}` },
@@ -722,15 +753,25 @@
 
                     const embedding = json.data[0].embedding;
                     
-                    const { data } = await supabaseClient.rpc('match_documents', {
+                    // Search Database
+                    const { data, error } = await supabaseClient.rpc('match_documents', {
                         query_embedding: embedding,
                         match_threshold: 0.5,
                         match_count: 4
                     });
+                    
+                    if(error) {
+                        console.log(error);
+                        document.getElementById('answer-content').innerHTML = "Database Error: " + error.message;
+                        return;
+                    }
+                    
                     if(data) vector = data;
+
                 } catch(err) { 
                     console.log(err); 
                     document.getElementById('answer-content').innerHTML = "Search Error. Check API Key.";
+                    return;
                 }
             }
             
@@ -738,16 +779,52 @@
         }
     }
 
-    // RENDERERS
+    function searchLocalLibrary(query) {
+        const results = [];
+        const q = query.toLowerCase();
+        Object.values(APP_CONFIG.library).flat().forEach(item => {
+            const text = (item.name || item) + " " + (item.desc || item.resource || "");
+            if (text.toLowerCase().includes(q)) results.push(item);
+        });
+        return results.slice(0, 3);
+    }
+
+    function displayAnswer(query, local, vector) {
+        let html = `<b>Query:</b> ${query}<br><br>`;
+        
+        if (local.length > 0) {
+            html += `<b>Library Matches:</b><br>`;
+            local.forEach(item => {
+                html += `• ${item.name || item} <span style="color:#aaa; font-size:0.8rem">${item.desc || item.resource || ""}</span><br>`;
+            });
+            html += `<br>`;
+        }
+        
+        if (vector.length > 0) {
+            html += `<b>Brain Matches (PDFs):</b><br>`;
+            vector.forEach(item => {
+                html += `• "${item.content.substring(0, 300)}..." <span style="color:#aaa; font-size:0.7rem">(${item.metadata?.title || 'Source'})</span><br><br>`;
+            });
+        } else if (vector.length === 0 && local.length === 0) {
+            html += "No matches found in Library or Brain.";
+        }
+
+        document.getElementById('answer-content').innerHTML = html;
+        openModal('answer-modal');
+    }
+
+    // --- RENDER APP ---
     function renderApp() {
         const seed = document.getElementById('date-input').value;
-        const model = getRandom(APP_CONFIG.library.mentalModels || [], seed + 'm');
-        const prod = getRandom(APP_CONFIG.library.productivity || [], seed + 'p');
-        const quote = getRandom(APP_CONFIG.library.quotes || [], seed + 'q');
+        const model = getRandom(APP_CONFIG.library.mentalModels, seed + 'm');
+        const prod = getRandom(APP_CONFIG.library.productivity, seed + 'p');
+        const quote = getRandom(APP_CONFIG.library.quotes, seed + 'q');
         const inv = getInvestorOfTheWeek(seed);
 
         let html = `
-        <section class="section-block"><h2 class="section-title">Daily Alignment</h2><div class="grid-2">
+        <section class="section-block">
+          <h2 class="section-title">Daily Alignment</h2>
+          <div class="grid-2">
             <div class="card"><div class="card-header"><div class="card-title">Mental Model</div></div><div class="prompt-body"><b>${model.name}</b><br>${model.desc}</div></div>
             <div class="card"><div class="card-header"><div class="card-title">Productivity</div></div><div class="prompt-body"><b>${prod.name}</b><br>${prod.desc}</div></div>
             <div class="card"><div class="card-header"><div class="card-title">Wisdom</div></div><div class="prompt-body">${quote.name ? quote.desc : quote}</div></div>
@@ -759,19 +836,28 @@
                     <div class="investor-meta">${inv.years}</div>
                 </div>
             </div>
-        </div></section>`;
+          </div>
+        </section>`;
 
-        APP_CONFIG.protocols.forEach(s => {
-            html += `<section class="section-block"><h2 class="section-title">${s.title}</h2><div class="grid-${s.columns}">`;
-            s.cards.forEach(c => {
-                html += `<div class="card" id="card-${c.id}"><div class="card-header"><div class="card-title">${c.title}</div><div class="xp-display">0 XP</div></div><div class="progress-track"><div class="progress-fill"></div></div><div class="items">`;
-                c.items.forEach(i => {
-                    let val = c.scoringType === 'count_multiplier' ? c.perItemXP : (i.xp || c.maxXP);
-                    html += `<label><input type="checkbox" data-key="${i.id}" data-card="${c.id}" data-xp="${val}"> ${i.label}</label>`;
+        APP_CONFIG.protocols.forEach(section => {
+            html += `<section class="section-block"><h2 class="section-title">${section.title}</h2><div class="grid-${section.columns}">`;
+            section.cards.forEach(card => {
+                html += `
+                <div class="card" id="card-${card.id}">
+                    <div class="card-header">
+                        <div class="card-title">${card.title}</div>
+                        <div class="xp-display">0 / ${card.maxXP} XP</div>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill"></div></div>
+                    <div class="items">`;
+                card.items.forEach(item => {
+                    let xpVal = card.scoringType === 'count_multiplier' ? card.perItemXP : (item.xp || card.maxXP);
+                    html += `<label><input type="checkbox" data-key="${item.id}" data-card="${card.id}" data-xp="${xpVal}"> ${item.label}</label>`;
                 });
-                if(c.details) {
-                    html += `<details class="details-list"><summary>Details</summary><ul class="sub-list">`;
-                    c.details.forEach(d => html += `<li>${d}</li>`);
+                
+                if (card.details && card.details.length > 0) {
+                    html += `<details class="details-list"><summary>View Details</summary><ul class="sub-list">`;
+                    card.details.forEach(d => html += `<li>${d}</li>`);
                     html += `</ul></details>`;
                 }
                 html += `</div></div>`;
@@ -779,68 +865,59 @@
             html += `</div></section>`;
         });
 
-        const w = APP_CONFIG.workouts[new Date(seed).getDay()];
-        html += `<section class="section-block"><div class="card"><div class="card-header"><div class="card-title">Workout</div><div style="font-size:0.8rem; color:var(--text-muted)">${w.t}</div></div><div class="items" style="font-size:0.9rem; color:#fff">${w.d}</div></div></section>`;
-        html += `<section class="section-block"><div class="card"><div class="card-header"><div class="card-title">Daily Journal</div></div><textarea id="daily-note-area"></textarea></div></section>`;
-        
+        const dateObj = new Date(seed);
+        const dayIdx = dateObj.getDay();
+        const w = APP_CONFIG.workouts[dayIdx] || { t: "Rest", d: "Recover" };
+        html += `
+        <section class="section-block">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Workout of the Day</div>
+                <div style="font-size:0.8rem; color:var(--text-muted)">${w.t}</div>
+              </div>
+              <div class="items" style="font-size:0.85rem; color:var(--text-main)">${w.d}</div>
+            </div>
+        </section>`;
+
+        html += `<section class="section-block"><div class="card"><div class="card-header"><div class="card-title">Daily Journal</div></div><textarea id="daily-note-area" placeholder="Wins, lessons, or thoughts..."></textarea></div></section>`;
+
         document.getElementById('app-content').innerHTML = html;
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', (e) => { updateVisuals(); if(e.target.checked) showFloatingXP(e); }));
-    }
 
-    // HELPERS
-    function searchLocalLibrary(q) {
-        const results = [];
-        Object.values(APP_CONFIG.library).flat().forEach(i => {
-            const txt = (i.name || i) + " " + (i.desc || i.resource || "");
-            if (txt.toLowerCase().includes(q.toLowerCase())) results.push(i);
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                updateVisuals();
+                if(e.target.checked) showFloatingXP(e);
+            });
         });
-        return results.slice(0, 3);
-    }
-    function displayAnswer(q, local, vector) {
-        let h = `<b>Query:</b> ${q}<br><br>`;
-        if (local.length) { h += `<b>Library:</b><br>`; local.forEach(i => h += `• ${i.name || i}<br>`); h += `<br>`; }
-        if (vector.length) { h += `<b>Brain:</b><br>`; vector.forEach(i => h += `• ${i.content.substring(0, 300)}...<br><br>`); }
-        else if(!local.length) h += "No results found.";
-        document.getElementById('answer-content').innerHTML = h;
-        openModal('answer-modal');
-    }
-    function updateVisuals() {
-        const s = readState(); let tot = 0;
-        APP_CONFIG.protocols.forEach(sec => sec.cards.forEach(c => {
-            let cxp = 0;
-            const cnt = c.items.filter(i => s[i.id]).length;
-            if (c.scoringType === 'count_multiplier') cxp = (cnt === c.items.length) ? c.maxXP : cnt * c.perItemXP;
-            else c.items.forEach(i => { if(s[i.id]) cxp += (i.xp || 0); });
-            if(cxp > c.maxXP) cxp = c.maxXP; tot += cxp;
-            const el = document.getElementById(`card-${c.id}`);
-            if(el) {
-                el.querySelector('.xp-display').innerText = `${Math.round(cxp)} / ${c.maxXP} XP`;
-                el.querySelector('.progress-fill').style.width = `${(cxp/c.maxXP)*100}%`;
-            }
-        }));
-        document.getElementById('total-xp').innerText = Math.round(tot);
-        document.querySelector('.xp-pill span').innerText = Math.round(tot);
     }
 
-    // EDITOR & UI UTILS
+    // --- EDITOR ENGINE ---
     function openEditor() { openModal('editor-modal'); renderEditorContent(); }
-    function switchEditorTab(t) { currentEditorTab = t; renderEditorContent(); }
-    function renderEditorContent() { /* Restored Full Editor Logic */ 
-        const container = document.getElementById('editor-content'); container.innerHTML = '';
+    function switchEditorTab(tab) {
+        currentEditorTab = tab;
+        document.querySelectorAll('#editor-modal .lib-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        renderEditorContent();
+    }
+    function renderEditorContent() {
+        const container = document.getElementById('editor-content');
+        container.innerHTML = '';
         if (currentEditorTab === 'protocols') {
             APP_CONFIG.protocols.forEach((section, sIdx) => {
                 let html = `<div class="editor-section"><div class="editor-label">${section.title}</div>`;
                 section.cards.forEach((card, cIdx) => {
                     html += `<div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; margin-bottom:10px;">
                         <div class="editor-row"><input class="editor-input" value="${card.title}" onchange="updateConfigValue('protocols', '${sIdx}.cards.${cIdx}.title', this.value)">
-                        <input class="editor-input-sm" type="number" value="${card.maxXP}" onchange="updateConfigValue('protocols', '${sIdx}.cards.${cIdx}.maxXP', this.value)"> XP</div>`;
+                        <input class="editor-input-sm" type="number" value="${card.maxXP}" onchange="updateConfigValue('protocols', '${sIdx}.cards.${cIdx}.maxXP', this.value)"> XP</div>
+                        <div class="editor-label" style="font-size:0.7rem; color:#aaa">Checkboxes</div>`;
                     card.items.forEach((item, iIdx) => {
                         html += `<div class="editor-row"><input class="editor-input" value="${item.label}" onchange="updateConfigValue('protocols', '${sIdx}.cards.${cIdx}.items.${iIdx}.label', this.value)">
                         <button class="danger icon-btn" onclick="deleteProtocolItem(${sIdx}, ${cIdx}, ${iIdx})">×</button></div>`;
                     });
                     html += `<button onclick="addProtocolItem(${sIdx}, ${cIdx})" class="add-btn">+ Add Checkbox</button></div>`;
                 });
-                html += `</div>`; container.innerHTML += html;
+                html += `</div>`;
+                container.innerHTML += html;
             });
         } else if (currentEditorTab === 'workouts') {
             let html = `<div class="editor-section"><div class="editor-label">Daily Workouts</div>`;
@@ -848,45 +925,164 @@
                 html += `<div class="editor-row"><div style="width:80px; font-size:0.8rem;">Day ${idx}</div>
                 <input class="editor-input" value="${w.t}" onchange="updateConfigValue('workouts', '${idx}.t', this.value)">
                 <input class="editor-input" value="${w.d}" onchange="updateConfigValue('workouts', '${idx}.d', this.value)"></div>`;
-            }); container.innerHTML = html + `</div>`;
+            });
+            container.innerHTML = html + `</div>`;
         } else {
-            const key = currentEditorTab;
-            let html = `<div class="editor-section"><div class="editor-label">Add New</div><div class="editor-row"><input id="new-lib-1" class="editor-input" placeholder="Name / Quote">`;
+            const key = currentEditorTab; 
+            let html = `<div class="editor-section"><div class="editor-label">Add New Item</div>
+            <div class="editor-row"><input id="new-lib-1" class="editor-input" placeholder="Name / Quote">`;
             if(key !== 'quotes') html += `<input id="new-lib-2" class="editor-input" placeholder="Description / Resource">`;
             if(key === 'investors') html += `<input id="new-lib-3" class="editor-input" placeholder="Years">`;
             html += `<button onclick="addToLibrary('${key}')" class="icon-btn">+</button></div></div>`;
+            
+            html += `<div class="editor-label">Existing Items (${APP_CONFIG.library[key].length})</div>`;
             APP_CONFIG.library[key].forEach((item, idx) => {
-                const val1 = item.name || item; const val2 = item.desc || item.resource || ""; const val3 = item.years || "";
+                const val1 = item.name || item; 
+                const val2 = item.desc || item.resource || "";
+                const val3 = item.years || "";
+                
                 let inputs = `<input class="editor-input" value="${val1}" onchange="updateLibItem('${key}', ${idx}, 'name', this.value)">`;
                 if(key !== 'quotes') inputs += `<input class="editor-input" value="${val2}" onchange="updateLibItem('${key}', ${idx}, 'desc', this.value)">`;
                 if(key === 'investors') inputs += `<input class="editor-input" style="max-width:80px" value="${val3}" onchange="updateLibItem('${key}', ${idx}, 'years', this.value)">`;
-                html += `<div class="item-edit-container"><div class="item-edit-actions"><button class="tiny-btn" onclick="moveLibItem('${key}', ${idx}, -1)">↑</button><button class="tiny-btn" onclick="moveLibItem('${key}', ${idx}, 1)">↓</button></div><div class="item-edit-inputs">${inputs}</div><button class="danger icon-btn" onclick="deleteLibItem('${key}', ${idx})">×</button></div>`;
-            }); container.innerHTML = html;
+
+                html += `<div class="item-edit-container">
+                    <div class="item-edit-actions">
+                        <button class="tiny-btn" onclick="moveLibItem('${key}', ${idx}, -1)">↑</button>
+                        <button class="tiny-btn" onclick="moveLibItem('${key}', ${idx}, 1)">↓</button>
+                    </div>
+                    <div class="item-edit-inputs" style="flex-direction:${key==='investors' ? 'column' : 'row'}">
+                        ${inputs}
+                    </div>
+                    <button class="danger icon-btn" onclick="deleteLibItem('${key}', ${idx})">×</button>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
     }
-    
-    function updateConfigValue(root, path, value) { let parts = path.split('.'); let obj = APP_CONFIG[root]; for(let i=0; i<parts.length-1; i++) obj = obj[parts[i]]; obj[parts[parts.length-1]] = value; }
-    function updateLibItem(key, idx, field, value) { if (key === 'quotes') APP_CONFIG.library[key][idx] = value; else { if(field === 'desc' && key === 'investors') field = 'resource'; APP_CONFIG.library[key][idx][field] = value; } }
-    function moveLibItem(key, idx, dir) { const arr = APP_CONFIG.library[key]; if ((dir === -1 && idx > 0) || (dir === 1 && idx < arr.length - 1)) { const temp = arr[idx]; arr[idx] = arr[idx + dir]; arr[idx + dir] = temp; renderEditorContent(); } }
-    function addProtocolItem(sIdx, cIdx) { APP_CONFIG.protocols[sIdx].cards[cIdx].items.push({ id: "custom_" + Date.now(), label: "New Habit" }); renderEditorContent(); }
-    function deleteProtocolItem(sIdx, cIdx, iIdx) { if(confirm("Delete?")) { APP_CONFIG.protocols[sIdx].cards[cIdx].items.splice(iIdx, 1); renderEditorContent(); } }
-    function deleteLibItem(key, idx) { if(confirm("Delete?")) { APP_CONFIG.library[key].splice(idx, 1); renderEditorContent(); } }
-    function addToLibrary(key) { const f1 = document.getElementById(`new-lib-1`).value; if(!f1) return; let newItem; if(key === 'quotes') newItem = f1; else if (key === 'investors') { const f2 = document.getElementById(`new-lib-2`).value; const f3 = document.getElementById(`new-lib-3`).value; newItem = { name: f1, resource: f2, years: f3 }; } else { const f2 = document.getElementById(`new-lib-2`).value; newItem = { name: f1, desc: f2 }; } APP_CONFIG.library[key].unshift(newItem); alert("Added!"); renderEditorContent(); }
-    function saveCustomConfig() { localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG)); saveToCloud(); closeModal('editor-modal'); renderApp(); updateVisuals(); alert("Configuration Saved!"); }
-    function factoryReset() { if(confirm("Reset?")) { localStorage.removeItem('komorebi_custom_config'); location.reload(); } }
 
-    function readState() { const s = {}; document.querySelectorAll('input[type="checkbox"]').forEach(cb => s[cb.dataset.key] = cb.checked); return s; }
-    function saveDay() { const s = readState(); s.note = document.getElementById('daily-note-area').value; localStorage.setItem(`komorebi_${document.getElementById('date-input').value}`, JSON.stringify(s)); saveToCloud(); }
-    function loadDay() { renderApp(); const raw = localStorage.getItem(`komorebi_${document.getElementById('date-input').value}`); if(raw) { const s = JSON.parse(raw); document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = !!s[cb.dataset.key]); document.getElementById('daily-note-area').value = s.note || ""; } updateVisuals(); }
-    function showFloatingXP(e) { const d = document.createElement('div'); d.className='floating-xp'; d.innerText=`+${e.target.dataset.xp}`; d.style.left=e.clientX+'px'; d.style.top=e.clientY+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
-    function getRandom(arr, seed) { if(!arr.length) return {}; let h=0; for(let i=0;i<seed.length;i++) h=((h<<5)-h)+seed.charCodeAt(i); return arr[Math.abs(h)%arr.length]; }
-    function getInvestorOfTheWeek(d) { if(!APP_CONFIG.library.investors.length) return {}; const dt=new Date(d); const start=new Date(dt.getFullYear(),0,1); const w=Math.ceil((((dt-start)/86400000)+start.getDay()+1)/7); return APP_CONFIG.library.investors[w%APP_CONFIG.library.investors.length]; }
-    function openModal(id) { document.getElementById(id).style.display='flex'; }
-    function closeModal(id) { document.getElementById(id).style.display='none'; }
-    function openSettings() { document.getElementById('export-area').value=JSON.stringify({...localStorage},null,2); openModal('settings-modal'); }
+    function updateConfigValue(root, path, value) {
+        let parts = path.split('.'); let obj = APP_CONFIG[root];
+        for(let i=0; i<parts.length-1; i++) obj = obj[parts[i]];
+        obj[parts[parts.length-1]] = value;
+    }
+    function updateLibItem(key, idx, field, value) {
+        if (key === 'quotes') {
+            APP_CONFIG.library[key][idx] = value;
+        } else {
+            if(field === 'desc' && key === 'investors') field = 'resource';
+            APP_CONFIG.library[key][idx][field] = value;
+        }
+    }
+    function moveLibItem(key, idx, dir) {
+        const arr = APP_CONFIG.library[key];
+        if ((dir === -1 && idx > 0) || (dir === 1 && idx < arr.length - 1)) {
+            const temp = arr[idx];
+            arr[idx] = arr[idx + dir];
+            arr[idx + dir] = temp;
+            renderEditorContent();
+        }
+    }
+    function addProtocolItem(sIdx, cIdx) {
+        APP_CONFIG.protocols[sIdx].cards[cIdx].items.push({ id: "custom_" + Date.now(), label: "New Habit" });
+        renderEditorContent();
+    }
+    function deleteProtocolItem(sIdx, cIdx, iIdx) {
+        if(confirm("Delete?")) { APP_CONFIG.protocols[sIdx].cards[cIdx].items.splice(iIdx, 1); renderEditorContent(); }
+    }
+    function deleteLibItem(key, idx) {
+        if(confirm("Delete?")) { APP_CONFIG.library[key].splice(idx, 1); renderEditorContent(); }
+    }
+    function addToLibrary(key) {
+        const f1 = document.getElementById(`new-lib-1`).value;
+        if(!f1) return;
+        let newItem;
+        if(key === 'quotes') newItem = f1;
+        else if (key === 'investors') {
+             const f2 = document.getElementById(`new-lib-2`).value;
+             const f3 = document.getElementById(`new-lib-3`).value;
+             newItem = { name: f1, resource: f2, years: f3 };
+        } else {
+             const f2 = document.getElementById(`new-lib-2`).value;
+             newItem = { name: f1, desc: f2 };
+        }
+        APP_CONFIG.library[key].unshift(newItem); 
+        alert("Added!"); renderEditorContent();
+    }
+    function saveCustomConfig() {
+        localStorage.setItem('komorebi_custom_config', JSON.stringify(APP_CONFIG));
+        saveToCloud();
+        closeModal('editor-modal'); renderApp(); updateVisuals(); alert("Configuration Saved!");
+    }
+    function factoryReset() {
+        if(confirm("Reset to defaults?")) { localStorage.removeItem('komorebi_custom_config'); location.reload(); }
+    }
+
+    // --- VISUALS & LOGIC ---
+    function updateVisuals() {
+        const state = readState();
+        let totalXP = 0;
+        APP_CONFIG.protocols.forEach(section => {
+            section.cards.forEach(card => {
+                let cardXP = 0;
+                const checkedCount = card.items.filter(i => state[i.id]).length;
+                if (card.scoringType === 'count_multiplier') {
+                    if (checkedCount === card.items.length) cardXP = card.maxXP;
+                    else cardXP = checkedCount * card.perItemXP;
+                } else {
+                    card.items.forEach(i => { if(state[i.id]) cardXP += (i.xp || 0); });
+                }
+                if (cardXP > card.maxXP) cardXP = card.maxXP;
+                totalXP += cardXP;
+                const cardEl = document.getElementById(`card-${card.id}`);
+                if (cardEl) {
+                    cardEl.querySelector('.xp-display').innerText = `${Math.round(cardXP)} / ${card.maxXP} XP`;
+                    const pct = (cardXP / card.maxXP) * 100;
+                    const fill = cardEl.querySelector('.progress-fill');
+                    fill.style.width = `${pct}%`;
+                    if(pct >= 100) fill.classList.add('maxed'); else fill.classList.remove('maxed');
+                }
+            });
+        });
+        document.getElementById('total-xp').innerText = `${Math.round(totalXP)}`;
+        document.querySelector('.xp-pill span').innerText = Math.round(totalXP);
+        let label = "Red Zone", cls = "red";
+        if (totalXP >= APP_CONFIG.levels.elite) { label = "Elite"; cls = "elite"; }
+        else if (totalXP >= APP_CONFIG.levels.strong) { label = "Strong"; cls = "strong"; }
+        else if (totalXP >= APP_CONFIG.levels.survival) { label = "Survival"; cls = "survival"; }
+        const rating = document.getElementById('day-rating');
+        rating.className = `badge ${cls}`; rating.innerText = label;
+    }
+
+    // --- LIBRARY RENDER ---
+    function renderLibrary() {
+        const filter = document.getElementById('lib-search').value.toLowerCase();
+        let data = APP_CONFIG.library[currentLibTab] || [];
+        if(currentLibTab === 'quotes') data = data.map(q => ({ name: "Quote", desc: q }));
+        document.getElementById('library-list').innerHTML = data.filter(i => i.name.toLowerCase().includes(filter) || (i.desc && i.desc.toLowerCase().includes(filter)))
+            .map(i => `<div class="lib-item"><div class="lib-title">${i.name} ${i.years ? `<span class="investor-meta">${i.years}</span>` : ''}</div><div class="lib-desc">${i.resource || i.desc}</div></div>`).join('');
+    }
+    function switchLibTab(tab) {
+        currentLibTab = tab; document.querySelectorAll('#library-modal .lib-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active'); renderLibrary();
+    }
     function openLibrary() { openModal('library-modal'); renderLibrary(); }
-    function restoreData() { try { const d=JSON.parse(document.getElementById('export-area').value); if(confirm("Overwrite?")){ localStorage.clear(); Object.keys(d).forEach(k=>localStorage.setItem(k,d[k])); location.reload(); } } catch(e){alert("Invalid");} }
-    function renderStats() { const container = document.getElementById('stats-chart'); container.innerHTML = ''; const today = new Date(); for (let i=6; i>=0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); const iso = d.toISOString().slice(0,10); const key = `komorebi_${iso}`; const raw = localStorage.getItem(key); let xp = 0; if (raw) { xp = 1000; } const group = document.createElement('div'); group.className = 'bar-group'; group.innerHTML = `<div class="bar" style="height:${xp>0?50:2}%"></div><div class="bar-label">${iso.slice(5)}</div>`; container.appendChild(group); } openModal('stats-modal'); }
+
+    // --- HELPERS ---
+    function readState() { const s = {}; document.querySelectorAll('input[type="checkbox"]').forEach(cb => s[cb.dataset.key] = cb.checked); return s; }
+    function writeState(s) { document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = !!s[cb.dataset.key]); document.getElementById('daily-note-area').value = s.note || ""; }
+    function getFormatKey() { return `komorebi_${document.getElementById('date-input').value}`; }
+    function saveDay() { const s = readState(); s.note = document.getElementById('daily-note-area').value; localStorage.setItem(getFormatKey(), JSON.stringify(s)); saveToCloud(); }
+    function loadDay() { renderApp(); const raw = localStorage.getItem(getFormatKey()); if(raw) writeState(JSON.parse(raw)); updateVisuals(); }
+    function resetDay() { writeState({}); updateVisuals(); }
+    function showFloatingXP(e) { const div = document.createElement('div'); div.className = 'floating-xp'; div.innerText = `+${e.target.dataset.xp} XP`; div.style.left = e.clientX + 'px'; div.style.top = e.clientY + 'px'; document.body.appendChild(div); setTimeout(() => div.remove(), 1000); }
+    function fireConfetti() { /* Animation code */ }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function getRandom(arr, seed) { let hash = 0; for(let i=0; i<seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i); return arr[Math.abs(hash) % arr.length]; }
+    function getInvestorOfTheWeek(dateStr) { const d = new Date(dateStr); const start = new Date(d.getFullYear(), 0, 1); const week = Math.ceil((((d - start) / 86400000) + start.getDay() + 1) / 7); return APP_CONFIG.library.investors[week % APP_CONFIG.library.investors.length]; }
+    function openSettings() { document.getElementById('export-area').value = JSON.stringify({...localStorage}, null, 2); openModal('settings-modal'); }
+    function restoreData() { try { const d = JSON.parse(document.getElementById('export-area').value); if(confirm("Overwrite?")) { localStorage.clear(); Object.keys(d).forEach(k => localStorage.setItem(k, d[k])); location.reload(); } } catch(e) { alert("Invalid JSON"); } }
+    function renderStats() { const container = document.getElementById('stats-chart'); container.innerHTML = ''; const today = new Date(); for (let i=6; i>=0; i--) { const d = new Date(today); d.setDate(d.getDate() - i); const iso = d.toISOString().slice(0,10); const key = `komorebi_${iso}`; const raw = localStorage.getItem(key); let xp = 0; if (raw) { const s = JSON.parse(raw); xp = 1000; } const group = document.createElement('div'); group.className = 'bar-group'; group.innerHTML = `<div class="bar" style="height:${xp>0?50:2}%"></div><div class="bar-label">${iso.slice(5)}</div>`; container.appendChild(group); } openModal('stats-modal'); }
 
     init();
   </script>
